@@ -1,0 +1,42 @@
+---
+name: Test mason-registry
+description: Test mason-registry package definitions.
+
+inputs:
+  target:
+    required: true
+    description: The target platform to test (e.g. "darwin_x64").
+  log_level:
+    required: false
+    description: Log level.
+    default: INFO
+  packages:
+    required: true
+    description: The packages to test (space separated string).
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        git clone https://github.com/williamboman/mason.nvim "$GITHUB_ACTION_PATH/mason.nvim"
+        git -C "$GITHUB_ACTION_PATH/mason.nvim" fetch origin static-registry
+        git -C "$GITHUB_ACTION_PATH/mason.nvim" checkout FETCH_HEAD
+
+    - shell: bash
+      name: Download yaml2json
+      run: |
+        wget -O "$GITHUB_ACTION_PATH/yaml2json" "https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_linux_amd64"
+        chmod +x "$GITHUB_ACTION_PATH/yaml2json"
+
+    - uses: rhysd/action-setup-vim@v1
+      with:
+        neovim: true
+        version: v0.8.0
+
+    - run: nvim --headless -c "luafile $GITHUB_ACTION_PATH/test-runner.lua" -c 1cq
+      shell: bash
+      env:
+        PACKAGES: ${{ inputs.packages }}
+        TARGET: ${{ inputs.target }}
+        LOG_LEVEL: ${{ inputs.log_level }}
