@@ -57,9 +57,21 @@ local ok, err = pcall(a.run_blocking, function()
             if skip ~= "skip" then
                 a.scheduler()
                 a.wait(function(resolve, reject)
+                    ---@type string[]
+                    local output = {}
+                    ---@param chunk string
+                    local function append_log(chunk)
+                        table.insert(output, chunk)
+                    end
+
                     pkg:once("install:success", resolve)
-                    pkg:once("install:failed", reject)
-                    pkg:install { target = TARGET }
+                    pkg:once("install:failed", function ()
+                        print("=====")
+                        print("Install output:")
+                        print(_.join("", output))
+                        print("=====")
+                    end)
+                    pkg:install { target = TARGET }:on("stdout", append_log):on("stderr", append_log)
                 end)
             else
                 a.scheduler()
