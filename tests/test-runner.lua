@@ -73,9 +73,10 @@ local ok, err = pcall(a.run_blocking, function()
                     end
 
                     pkg:once("install:success", resolve)
-                    pkg:once("install:failed", function()
+                    pkg:once("install:failed", function(...)
                         log.info("Install output:")
                         log.info(_.join("", output))
+                        reject(...)
                     end)
                     pkg:install({ target = TARGET }):on("stdout", append_log):on("stderr", append_log)
                 end)
