@@ -15,6 +15,14 @@ local a = require "mason-core.async"
 local sources = require "mason-core.installer.sources"
 local Result = require "mason-core.result"
 
+local log = setmetatable({}, {
+    __index = function(_, log_level)
+        return function(...)
+            print(("[test-runner] [%s]"):format(log_level:upper()), ...)
+        end
+    end,
+})
+
 require("mason").setup {
     log_level = vim.log.levels[vim.env.LOG_LEVEL or "INFO"],
 }
@@ -42,9 +50,9 @@ local is_not_empty = _.complement(_.equals "")
 local ok, err = pcall(a.run_blocking, function()
     Result.try(function(try)
         local packages = _.filter(is_not_empty, _.split(" ", PACKAGES))
-        vim.pretty_print("Testing packages", packages)
+        log.info("Testing packages", packages)
 
-        for _, pkg_path in ipairs(packages) do
+        for __, pkg_path in ipairs(packages) do
             local pkg = try(parse_package_spec(pkg_path))
             local skip = try(sources.parse(pkg.spec, { target = TARGET }):or_else(function(err)
                 if err == "PLATFORM_UNSUPPORTED" then
@@ -65,24 +73,22 @@ local ok, err = pcall(a.run_blocking, function()
                     end
 
                     pkg:once("install:success", resolve)
-                    pkg:once("install:failed", function ()
-                        print("=====")
-                        print("Install output:")
-                        print(_.join("", output))
-                        print("=====")
+                    pkg:once("install:failed", function()
+                        log.info("Install output:")
+                        log.info(_.join("", output))
                     end)
-                    pkg:install { target = TARGET }:on("stdout", append_log):on("stderr", append_log)
+                    pkg:install({ target = TARGET }):on("stdout", append_log):on("stderr", append_log)
                 end)
             else
                 a.scheduler()
-                print(("Package %q doesn't support platform %q - skipping test."):format(pkg.name, TARGET))
+                log.info(("Package %q doesn't support platform %q - skipping test."):format(pkg.name, TARGET))
             end
         end
     end):on_failure(error)
 end)
 
 if not ok then
-    vim.api.nvim_err_writeln(tostring(err))
+    log.error(tostring(err))
     vim.cmd "1cq"
 else
     vim.cmd "0cq"
