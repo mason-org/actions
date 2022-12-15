@@ -31,13 +31,15 @@ require("mason").setup {
 local function parse_package_spec(pkg_path)
     return Result.try(function(try)
         local raw_yaml = fs.async.read_file(path.concat { vim.loop.cwd(), pkg_path })
-        local raw_spec = try(spawn.yaml2json {
+        local raw_spec = try(spawn.yq {
+            "-r",
+            ".",
             on_spawn = function(_, stdio)
                 local stdin = stdio[1]
-                stdin:write(raw_yaml)
-                stdin:shutdown()
+                stdin:write(raw_yaml, function ()
+                    stdin:shutdown()
+                end)
             end,
-            with_paths = { GITHUB_ACTION_PATH },
         })
         local spec = vim.json.decode(raw_spec.stdout)
         spec.schema = "registry+v1"
@@ -74,7 +76,7 @@ local ok, err = pcall(a.run_blocking, function()
 
                     pkg:once("install:success", resolve)
                     pkg:once("install:failed", function(...)
-                        log.info("Install output:")
+                        log.info "Install output:"
                         log.info(_.join("", output))
                         reject(...)
                     end)

@@ -17,7 +17,8 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/setup-python@v4
+    - if: ${{ runner.os == 'macOS' }}
+      uses: actions/setup-python@v4
       with:
         python-version: '3.10'
 
@@ -27,25 +28,9 @@ runs:
         git -C "$GITHUB_ACTION_PATH/mason.nvim" fetch origin static-registry
         git -C "$GITHUB_ACTION_PATH/mason.nvim" checkout FETCH_HEAD
 
-    - if: ${{ runner.os == 'Linux' }}
+    - name: Download yq
       shell: bash
-      name: Download yaml2json (Linux)
-      run: |
-        wget -O "$GITHUB_ACTION_PATH/yaml2json" "https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_linux_amd64"
-        chmod +x "$GITHUB_ACTION_PATH/yaml2json"
-
-    - if: ${{ runner.os == 'macOS' }}
-      shell: bash
-      name: Download yaml2json (macOS)
-      run: |
-        wget -O "$GITHUB_ACTION_PATH/yaml2json" "https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_darwin_amd64"
-        chmod +x "$GITHUB_ACTION_PATH/yaml2json"
-
-    - if: ${{ runner.os == 'Windows' }}
-      shell: powershell
-      name: Download yaml2json (Windows)
-      run: |
-        iwr -UseBasicParsing "https://github.com/bronze1man/yaml2json/releases/download/v1.3/yaml2json_windows_amd64.exe" -OutFile $(Join-Path $Env:GITHUB_ACTION_PATH "yaml2json.exe")
+      run: python3 -m pip install yq
 
     - uses: rhysd/action-setup-vim@v1
       with:
