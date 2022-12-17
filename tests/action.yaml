@@ -22,6 +22,12 @@ runs:
       with:
         python-version: '3.10'
 
+    # Install system dependencies
+    - shell: bash
+      run: $GITHUB_ACTION_PATH/install_system_deps.sh
+      env:
+        PACKAGES: ${{ inputs.packages }}
+
     - shell: bash
       run: |
         git clone https://github.com/williamboman/mason.nvim "$GITHUB_ACTION_PATH/mason.nvim"
