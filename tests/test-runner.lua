@@ -16,9 +16,10 @@ local sources = require "mason-core.installer.sources"
 local Result = require "mason-core.result"
 
 local log = setmetatable({}, {
-    __index = function(_, log_level)
+    __index = function(__, log_level)
         return function(...)
-            print(("[test-runner] [%s]"):format(log_level:upper()), ...)
+            local args = _.map(_.if_else(_.is "table", vim.inspect, _.identity), { ... })
+            print(("[test-runner] [%s]"):format(log_level:upper()), unpack(args))
         end
     end,
 })
@@ -36,7 +37,7 @@ local function parse_package_spec(pkg_path)
             ".",
             on_spawn = function(_, stdio)
                 local stdin = stdio[1]
-                stdin:write(raw_yaml, function ()
+                stdin:write(raw_yaml, function()
                     stdin:shutdown()
                 end)
             end,
