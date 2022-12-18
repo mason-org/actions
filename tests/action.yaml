@@ -22,6 +22,11 @@ runs:
       with:
         python-version: '3.10'
 
+    - if: ${{ runner.os == 'Windows' }}
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.1'
+
     # Install system dependencies
     - shell: bash
       run: $GITHUB_ACTION_PATH/install_system_deps.sh

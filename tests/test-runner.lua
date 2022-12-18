@@ -81,7 +81,7 @@ local ok, err = pcall(a.run_blocking, function()
                         log.info(_.join("", output))
                         reject(...)
                     end)
-                    pkg:install({ target = TARGET , debug = true }):on("stdout", append_log):on("stderr", append_log)
+                    pkg:install({ target = TARGET, debug = true }):on("stdout", append_log):on("stderr", append_log)
                 end)
             else
                 a.scheduler()
