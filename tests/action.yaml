@@ -6,10 +6,6 @@ inputs:
   target:
     required: true
     description: The target platform to test (e.g. "darwin_x64").
-  log_level:
-    required: false
-    description: Log level.
-    default: INFO
   packages:
     required: true
     description: The packages to test (space separated string).
@@ -49,4 +45,3 @@ runs:
       env:
         PACKAGES: ${{ inputs.packages }}
         TARGET: ${{ inputs.target }}
-        LOG_LEVEL: ${{ inputs.log_level }}

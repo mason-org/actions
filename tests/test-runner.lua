@@ -25,7 +25,7 @@ local log = setmetatable({}, {
 })
 
 require("mason").setup {
-    log_level = vim.log.levels[vim.env.LOG_LEVEL or "INFO"],
+    log_level = vim.log.levels[(vim.env.RUNNER_DEBUG == "1" and "DEBUG") or "INFO"],
 }
 
 ---@param pkg_path string

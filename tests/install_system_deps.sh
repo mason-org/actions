@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+if [[ -n $RUNNER_DEBUG ]]; then
+    set -x
+fi
+
 set -euo pipefail
 
 function is-testing-package() {
@@ -20,23 +24,23 @@ function install-yq() {
             sudo chmod +x /usr/local/bin/yq
             return 0
         elif [[ $RUNNER_ARCH == ARM64 ]]; then
-            sudo curl -f "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_darwin_arm64" -o /usr/local/bin/yq
+            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_darwin_arm64" -o /usr/local/bin/yq
             sudo chmod +x /usr/local/bin/yq
             return 0
         fi
     elif [[ $RUNNER_OS == Linux ]]; then
         if [[ $RUNNER_ARCH == X64 ]]; then
-            sudo curl -f "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_amd64" -o /usr/local/bin/yq
+            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_amd64" -o /usr/local/bin/yq
             sudo chmod +x /usr/local/bin/yq
             return 0
         elif [[ $RUNNER_ARCH == ARM64 ]]; then
-            sudo curl -f "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_arm64" -o /usr/local/bin/yq
+            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_arm64" -o /usr/local/bin/yq
             sudo chmod +x /usr/local/bin/yq
             return 0
         fi
     elif [[ $RUNNER_OS == Windows ]]; then
         if [[ $RUNNER_ARCH == X64 ]]; then
-            curl -f "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_windows_amd64.exe" > /c/ProgramData/chocolatey/bin/yq.exe
+            curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_windows_amd64.exe" -o /c/ProgramData/chocolatey/bin/yq.exe
             return 0
         fi
     fi
