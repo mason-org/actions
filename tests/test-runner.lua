@@ -33,8 +33,8 @@ local function parse_package_spec(pkg_path)
     return Result.try(function(try)
         local raw_yaml = fs.async.read_file(path.concat { vim.loop.cwd(), pkg_path })
         local raw_spec = try(spawn.yq {
-            "-r",
-            ".",
+            "-o",
+            "json",
             on_spawn = function(_, stdio)
                 local stdin = stdio[1]
                 stdin:write(raw_yaml, function()

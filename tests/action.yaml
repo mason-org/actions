@@ -39,10 +39,6 @@ runs:
         git -C "$GITHUB_ACTION_PATH/mason.nvim" fetch origin static-registry
         git -C "$GITHUB_ACTION_PATH/mason.nvim" checkout FETCH_HEAD
 
-    - name: Download yq
-      shell: bash
-      run: python3 -m pip install yq
-
     - uses: rhysd/action-setup-vim@v1
       with:
         neovim: true
