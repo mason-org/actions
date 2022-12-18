@@ -12,7 +12,7 @@ local _ = require "mason-core.functional"
 local fs = require "mason-core.fs"
 local path = require "mason-core.path"
 local a = require "mason-core.async"
-local sources = require "mason-core.installer.sources"
+local registry_installer = require "mason-core.installer.registry"
 local Result = require "mason-core.result"
 
 local log = setmetatable({}, {
@@ -57,7 +57,7 @@ local ok, err = pcall(a.run_blocking, function()
 
         for __, pkg_path in ipairs(packages) do
             local pkg = try(parse_package_spec(pkg_path))
-            local skip = try(sources.parse(pkg.spec, { target = TARGET }):or_else(function(err)
+            local skip = try(registry_installer.parse(pkg.spec, { target = TARGET }):or_else(function(err)
                 if err == "PLATFORM_UNSUPPORTED" then
                     return Result.success "skip"
                 else
@@ -81,7 +81,7 @@ local ok, err = pcall(a.run_blocking, function()
                         log.info(_.join("", output))
                         reject(...)
                     end)
-                    pkg:install({ target = TARGET }):on("stdout", append_log):on("stderr", append_log)
+                    pkg:install({ target = TARGET , debug = true }):on("stdout", append_log):on("stderr", append_log)
                 end)
             else
                 a.scheduler()
