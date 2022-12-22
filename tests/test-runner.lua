@@ -14,6 +14,10 @@ local path = require "mason-core.path"
 local a = require "mason-core.async"
 local registry_installer = require "mason-core.installer.registry"
 local Result = require "mason-core.result"
+local platform = require "mason-core.platform"
+local Purl = require "mason-core.purl"
+
+local IS_RUNNING_NATIVE_TARGET = platform.is[TARGET]
 
 local log = setmetatable({}, {
     __index = function(__, log_level)
@@ -50,6 +54,27 @@ end
 
 local is_not_empty = _.complement(_.equals "")
 
+---@param pkg Package
+local function should_skip(pkg)
+    return Result.try(function(try)
+        if not IS_RUNNING_NATIVE_TARGET then
+            local purl = try(Purl.parse(pkg.spec.source.id))
+            if not (purl.type == "github" and pkg.spec.source.asset ~= nil) then
+                -- Currently we can only meaningfully emulate a different target platform for GitHub release sources.
+                return ("Cannot emulate target: %q"):format(TARGET)
+            end
+        end
+
+        return try(registry_installer.parse(pkg.spec, { target = TARGET }):map(_.always(nil)):or_else(function(err)
+            if err == "PLATFORM_UNSUPPORTED" then
+                return Result.success "Unsupported platform."
+            else
+                return Result.failure(err)
+            end
+        end))
+    end)
+end
+
 local ok, err = pcall(a.run_blocking, function()
     Result.try(function(try)
         local packages = _.filter(is_not_empty, _.split(" ", PACKAGES))
@@ -57,15 +82,8 @@ local ok, err = pcall(a.run_blocking, function()
 
         for __, pkg_path in ipairs(packages) do
             local pkg = try(parse_package_spec(pkg_path))
-            local skip = try(registry_installer.parse(pkg.spec, { target = TARGET }):or_else(function(err)
-                if err == "PLATFORM_UNSUPPORTED" then
-                    return Result.success "skip"
-                else
-                    return Result.failure(err)
-                end
-            end))
-
-            if skip ~= "skip" then
+            local skip_reason = try(should_skip(pkg))
+            if skip_reason == nil then
                 a.scheduler()
                 a.wait(function(resolve, reject)
                     ---@type string[]
@@ -85,7 +103,7 @@ local ok, err = pcall(a.run_blocking, function()
                 end)
             else
                 a.scheduler()
-                log.info(("Package %q doesn't support platform %q - skipping test."):format(pkg.name, TARGET))
+                log.info(("Skipping package %q: %s."):format(pkg.name, skip_reason))
             end
         end
     end):on_failure(error)
