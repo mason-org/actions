@@ -59,7 +59,7 @@ local function should_skip(pkg)
     return Result.try(function(try)
         if not IS_RUNNING_NATIVE_TARGET then
             local purl = try(Purl.parse(pkg.spec.source.id))
-            if not (purl.type == "github" and pkg.spec.source.asset ~= nil) then
+            if purl.type ~= "generic" and not (purl.type == "github" and pkg.spec.source.asset ~= nil) then
                 -- Currently we can only meaningfully emulate a different target platform for GitHub release sources.
                 return ("Cannot emulate target: %q"):format(TARGET)
             end
@@ -82,6 +82,9 @@ local ok, err = pcall(a.run_blocking, function()
 
         for __, pkg_path in ipairs(packages) do
             local pkg = try(parse_package_spec(pkg_path))
+            if vim.in_fast_event() then
+                a.scheduler()
+            end
             local skip_reason = try(should_skip(pkg))
             if skip_reason == nil then
                 a.scheduler()
