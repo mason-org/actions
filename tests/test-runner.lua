@@ -86,20 +86,12 @@ local ok, err = pcall(a.run_blocking, function()
             if skip_reason == nil then
                 a.scheduler()
                 a.wait(function(resolve, reject)
-                    ---@type string[]
-                    local output = {}
-                    ---@param chunk string
-                    local function append_log(chunk)
-                        table.insert(output, chunk)
-                    end
-
                     pkg:once("install:success", resolve)
-                    pkg:once("install:failed", function(...)
-                        log.info "Install output:"
-                        log.info(_.join("", output))
-                        reject(...)
-                    end)
-                    pkg:install({ target = TARGET, debug = true }):on("stdout", append_log):on("stderr", append_log)
+                    pkg:once("install:failed", reject)
+                    local handle = pkg:install { target = TARGET, debug = true }
+                    if vim.env.RUNNER_DEBUG == "1" then
+                        handle:on("stdout", vim.schedule_wrap(print)):on("stderr", vim.schedule_wrap(print))
+                    end
                 end)
             else
                 a.scheduler()
