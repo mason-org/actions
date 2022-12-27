@@ -27,22 +27,22 @@ function install-yq {
     echo "Installing yq!"
     if [[ $RUNNER_OS == macOS ]]; then
         if [[ $RUNNER_ARCH == X64 ]]; then
-            curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_darwin_amd64" -o /usr/local/bin/yq
-            chmod +x /usr/local/bin/yq
+            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_darwin_amd64" -o /usr/local/bin/yq
+            sudo chmod +x /usr/local/bin/yq
             return 0
         elif [[ $RUNNER_ARCH == ARM64 ]]; then
-            curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_darwin_arm64" -o /usr/local/bin/yq
-            chmod +x /usr/local/bin/yq
+            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_darwin_arm64" -o /usr/local/bin/yq
+            sudo chmod +x /usr/local/bin/yq
             return 0
         fi
     elif [[ $RUNNER_OS == Linux ]]; then
         if [[ $RUNNER_ARCH == X64 ]]; then
-            curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_amd64" -o /usr/local/bin/yq
-            chmod +x /usr/local/bin/yq
+            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_amd64" -o /usr/local/bin/yq
+            sudo chmod +x /usr/local/bin/yq
             return 0
         elif [[ $RUNNER_ARCH == ARM64 ]]; then
-            curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_arm64" -o /usr/local/bin/yq
-            chmod +x /usr/local/bin/yq
+            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_arm64" -o /usr/local/bin/yq
+            sudo chmod +x /usr/local/bin/yq
             return 0
         fi
     elif [[ $RUNNER_OS == Windows ]]; then
@@ -60,9 +60,9 @@ function install-erlang {
     if [[ $RUNNER_OS == macOS ]]; then
         brew install erlang rebar3
     elif [[ $RUNNER_OS == Linux ]]; then
-        curl -f https://s3.amazonaws.com/rebar3/rebar3 >/usr/local/bin/rebar3
-        chmod +x /usr/local/bin/rebar3
-        apt install -y erlang
+        sudo curl -f https://s3.amazonaws.com/rebar3/rebar3 >/usr/local/bin/rebar3
+        sudo chmod +x /usr/local/bin/rebar3
+        sudo apt install -y erlang
     elif [[ $RUNNER_OS == Windows ]]; then
         choco install erlang
         # We repurpose chocolatey's bin directory because we're lazy.
@@ -80,10 +80,10 @@ function install-opam {
     echo "Installing opam!"
     if [[ $RUNNER_OS == macOS ]]; then
         brew install opam
-        opam init
+        sudo opam init
     elif [[ $RUNNER_OS == Linux ]]; then
-        add-apt-repository -y ppa:avsm/ppa
-        apt install -y opam
+        sudo add-apt-repository -y ppa:avsm/ppa
+        sudo apt install -y opam
         opam init
     elif [[ $RUNNER_OS == Windows ]]; then
         # Opam support via Chocolatey planned for 2.2
@@ -96,11 +96,17 @@ function install-nim {
     if [[ $RUNNER_OS == macOS ]]; then
         brew install nim
     elif [[ $RUNNER_OS == Linux ]]; then
-        apt install -y nim
+        # Not packaged for Ubuntu 22.04.
+        skip_package "packages/nimlsp/package.yaml"
     elif [[ $RUNNER_OS == Windows ]]; then
-        choco install nim
+        choco install choosenim
+        choosenim -y stable
     fi
 }
+
+if [[ $RUNNER_OS == Linux ]]; then
+    sudo apt update
+fi
 
 install-yq
 
