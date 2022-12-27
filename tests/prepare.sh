@@ -91,30 +91,16 @@ function install-erlang {
     if [[ $RUNNER_OS == macOS ]]; then
         brew install erlang rebar3
         return 0
-    elif [[ $RUNNER_OS == Linux ]]; then
-        sudo curl -f https://s3.amazonaws.com/rebar3/rebar3 -o /usr/local/bin/rebar3
-        sudo chmod +x /usr/local/bin/rebar3
-        sudo apt install -y erlang
-        return 0
-    elif [[ $RUNNER_OS == Windows ]]; then
-        choco install erlang
-        # We repurpose chocolatey's bin directory because we're lazy.
-        curl -f https://s3.amazonaws.com/rebar3/rebar3 >/c/ProgramData/chocolatey/bin/rebar3
-        cat <<EOF >"/c/ProgramData/chocolatey/bin/rebar3.cmd"
-@echo off
-setlocal
-set rebarscript=%~f0
-escript.exe "%rebarscript:.cmd=%" %*
-EOF
+    else
+        echo "setup_beam=true" >> "$GITHUB_OUTPUT"
         return 0
     fi
-    return 1
 }
 
 function install-opam {
     if [[ $RUNNER_OS == macOS ]]; then
         brew install opam
-        sudo opam init
+        opam init
         return 0
     elif [[ $RUNNER_OS == Linux ]]; then
         sudo add-apt-repository -y ppa:avsm/ppa
@@ -129,21 +115,16 @@ function install-opam {
 }
 
 function install-nim {
-    if [[ $RUNNER_OS == macOS ]]; then
-        sh <(curl -sSf https://nim-lang.org/choosenim/init.sh) -y
-        PATH=~/.nimble/bin:$PATH
-        echo "PATH=$PATH" >> "$GITHUB_ENV"
-        return 0
-    elif [[ $RUNNER_OS == Linux ]]; then
-        sh <(curl -sSf https://nim-lang.org/choosenim/init.sh) -y
-        PATH=~/.nimble/bin:$PATH
-        echo "PATH=$PATH" >> "$GITHUB_ENV"
-        return 0
-    elif [[ $RUNNER_OS == Windows ]]; then
-        # Ugh.. too messy.
+    echo "setup_nim=true" >> "$GITHUB_OUTPUT"
+    return 0
+}
+
+function install-nix {
+    if [[ $RUNNER_OS == Windows ]]; then
         return 2
     fi
-    return 1
+    echo "setup_nix=true" >> "$GITHUB_OUTPUT"
+    return 0
 }
 
 if [[ $RUNNER_OS == Linux ]]; then
@@ -155,7 +136,20 @@ install-yq
 match install-erlang "packages/erlang-ls/package.yaml"
 match install-opam "packages/ocaml-lsp/package.yaml"
 match install-nim "packages/nimlsp/package.yaml"
+match install-nix "packages/nil/package.yaml"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"
+
+PACKAGES_TO_TEST=""
+
+set +u
+
+for pkg in $PACKAGES; do
+    if [[ ! " ${SKIPPED_PACKAGES[*]} " =~ " ${pkg} " ]]; then
+        PACKAGES_TO_TEST="$pkg $PACKAGES_TO_TEST"
+    fi
+done
+
+echo "PACKAGES=$PACKAGES_TO_TEST" >> "$GITHUB_OUTPUT"
 
 # vim:sw=4:et
