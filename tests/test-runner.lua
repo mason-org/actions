@@ -1,10 +1,12 @@
-local TARGET, PACKAGES, GITHUB_ACTION_PATH = vim.env.TARGET, vim.env.PACKAGES, vim.env.GITHUB_ACTION_PATH
+local TARGET, PACKAGES, GITHUB_ACTION_PATH, SKIPPED_PACKAGES =
+    vim.env.TARGET, vim.env.PACKAGES, vim.env.GITHUB_ACTION_PATH, vim.env.SKIPPED_PACKAGES
 
 assert(TARGET, "$TARGET not set.")
 assert(PACKAGES, "$PACKAGES not set.")
-assert(GITHUB_ACTION_PATH, "$GITHUB_ACTION_PATH not set.")
 
-vim.opt.rtp:prepend(GITHUB_ACTION_PATH .. "/mason.nvim")
+if GITHUB_ACTION_PATH then
+    vim.opt.rtp:prepend(GITHUB_ACTION_PATH .. "/mason.nvim")
+end
 
 local Pkg = require "mason-core.package"
 local spawn = require "mason-core.spawn"
@@ -16,6 +18,17 @@ local registry_installer = require "mason-core.installer.registry"
 local Result = require "mason-core.result"
 local platform = require "mason-core.platform"
 local Purl = require "mason-core.purl"
+
+if SKIPPED_PACKAGES then
+    local skipped_packages = _.set_of(_.split(" ", SKIPPED_PACKAGES))
+    PACKAGES = _.compose(
+        _.join " ",
+        _.filter(function(pkg)
+            return not skipped_packages[pkg]
+        end),
+        _.split " "
+    )(PACKAGES)
+end
 
 local IS_RUNNING_NATIVE_TARGET = platform.is[TARGET]
 

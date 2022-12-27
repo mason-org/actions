@@ -29,7 +29,7 @@ runs:
 
     # Install system dependencies
     - shell: bash
-      run: $GITHUB_ACTION_PATH/install_system_deps.sh
+      run: $GITHUB_ACTION_PATH/install-system-deps.sh
       env:
         PACKAGES: ${{ inputs.packages }}
 
