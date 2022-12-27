@@ -130,15 +130,18 @@ function install-opam {
 
 function install-nim {
     if [[ $RUNNER_OS == macOS ]]; then
-        brew install nim
+        sh <(curl -sSf https://nim-lang.org/choosenim/init.sh) -y
+        PATH=~/.nimble/bin:$PATH
+        echo "PATH=$PATH" >> "$GITHUB_ENV"
         return 0
     elif [[ $RUNNER_OS == Linux ]]; then
-        # Not packaged for Ubuntu 22.04.
-        return 2
-    elif [[ $RUNNER_OS == Windows ]]; then
-        choco install choosenim
-        choosenim -y stable
+        sh <(curl -sSf https://nim-lang.org/choosenim/init.sh) -y
+        PATH=~/.nimble/bin:$PATH
+        echo "PATH=$PATH" >> "$GITHUB_ENV"
         return 0
+    elif [[ $RUNNER_OS == Windows ]]; then
+        # Ugh.. too messy.
+        return 2
     fi
     return 1
 }
