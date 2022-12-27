@@ -9,18 +9,50 @@ set -euo pipefail
 SKIPPED_PACKAGES=()
 
 function skip_package {
+    echo "Skipping package $1"
     SKIPPED_PACKAGES+=("$1")
 }
 
-function is-testing-package {
+function skip_packages {
     for pkg in "$@"; do
-        for PKG in "${PACKAGES[@]}"; do
-            if [[ $PKG == $pkg ]]; then
-                return 0
-            fi
-        done
+        skip_package "$pkg"
+    done
+}
+
+function is-testing-package {
+    local pkg=$1
+    for PKG in $PACKAGES; do
+        if [[ $PKG == "$pkg" ]]; then
+            return 0
+        fi
     done
     return 1
+}
+
+function match {
+    local fn=$1
+    shift
+    for pkg in "$@"; do
+        if is-testing-package "$pkg"; then
+            EXIT_CODE=0
+            echo "Running $fn"
+            "$fn" || EXIT_CODE=$?
+            case "$EXIT_CODE" in
+                0)
+                    return 0
+                    ;;
+                2)
+                    skip_packages "$@"
+                    return 0
+                    ;;
+                *)
+                    echo >&2 "Failed to run ${fn}"
+                    return 1
+                    ;;
+            esac
+        fi
+    done
+    return 0
 }
 
 function install-yq {
@@ -56,13 +88,14 @@ function install-yq {
 }
 
 function install-erlang {
-    echo "Installing erlang!"
     if [[ $RUNNER_OS == macOS ]]; then
         brew install erlang rebar3
+        return 0
     elif [[ $RUNNER_OS == Linux ]]; then
-        sudo curl -f https://s3.amazonaws.com/rebar3/rebar3 >/usr/local/bin/rebar3
+        sudo curl -f https://s3.amazonaws.com/rebar3/rebar3 -o /usr/local/bin/rebar3
         sudo chmod +x /usr/local/bin/rebar3
         sudo apt install -y erlang
+        return 0
     elif [[ $RUNNER_OS == Windows ]]; then
         choco install erlang
         # We repurpose chocolatey's bin directory because we're lazy.
@@ -73,35 +106,41 @@ setlocal
 set rebarscript=%~f0
 escript.exe "%rebarscript:.cmd=%" %*
 EOF
+        return 0
     fi
+    return 1
 }
 
 function install-opam {
-    echo "Installing opam!"
     if [[ $RUNNER_OS == macOS ]]; then
         brew install opam
         sudo opam init
+        return 0
     elif [[ $RUNNER_OS == Linux ]]; then
         sudo add-apt-repository -y ppa:avsm/ppa
         sudo apt install -y opam
         opam init
+        return 0
     elif [[ $RUNNER_OS == Windows ]]; then
         # Opam support via Chocolatey planned for 2.2
-        skip_package "packages/ocaml-lsp/package.yaml"
+        return 2
     fi
+    return 1
 }
 
 function install-nim {
-    echo "Installing nim!"
     if [[ $RUNNER_OS == macOS ]]; then
         brew install nim
+        return 0
     elif [[ $RUNNER_OS == Linux ]]; then
         # Not packaged for Ubuntu 22.04.
-        skip_package "packages/nimlsp/package.yaml"
+        return 2
     elif [[ $RUNNER_OS == Windows ]]; then
         choco install choosenim
         choosenim -y stable
+        return 0
     fi
+    return 1
 }
 
 if [[ $RUNNER_OS == Linux ]]; then
@@ -110,17 +149,9 @@ fi
 
 install-yq
 
-if is-testing-package "packages/erlang-ls/package.yaml"; then
-    install-erlang
-fi
-
-if is-testing-package "packages/ocaml-lsp/package.yaml"; then
-    install-opam
-fi
-
-if is-testing-package "packages/nimlsp/package.yaml"; then
-    install-nim
-fi
+match install-erlang "packages/erlang-ls/package.yaml"
+match install-opam "packages/ocaml-lsp/package.yaml"
+match install-nim "packages/nimlsp/package.yaml"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"
 
