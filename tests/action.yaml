@@ -18,6 +18,7 @@ runs:
       run: $GITHUB_ACTION_PATH/prepare.sh
       env:
         PACKAGES: ${{ inputs.packages }}
+        TARGET: ${{ inputs.target }}
 
     - if: ${{ steps.prepare.outputs.setup_beam == 'true' }}
       uses: erlef/setup-beam@v1

@@ -32,6 +32,14 @@ function is-testing-package {
 function match {
     local fn=$1
     shift
+    if [[ $TARGET != *"x64"* ]]; then
+        # All runners run on the x64 architecture currently. Emulation currently takes place in the application layer
+        # (mason.nvim itself), and only for GitHub release sources. It's pointless to install these when not targeting x64.
+        echo "Not targeting x64, skipping all provided packages."
+        skip_packages "$@"
+        return 0
+    fi
+
     for pkg in "$@"; do
         if is-testing-package "$pkg"; then
             EXIT_CODE=0
