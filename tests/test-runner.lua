@@ -78,6 +78,12 @@ local function should_skip(pkg)
             end
         end
 
+        if pkg.spec.ci_skip then
+            if _.any(_.equals(TARGET), pkg.spec.ci_skip) then
+                return "ci_skip enabled for current target"
+            end
+        end
+
         return try(registry_installer.parse(pkg.spec, { target = TARGET }):map(_.always(nil)):or_else(function(err)
             if err == "PLATFORM_UNSUPPORTED" then
                 return Result.success "Unsupported platform."
