@@ -8,14 +8,16 @@ set -euo pipefail
 
 SKIPPED_PACKAGES=()
 
-function skip_package {
+SKIP=2
+
+function skip-package {
     echo "Skipping package $1"
     SKIPPED_PACKAGES+=("$1")
 }
 
-function skip_packages {
+function skip-packages {
     for pkg in "$@"; do
-        skip_package "$pkg"
+        skip-package "$pkg"
     done
 }
 
@@ -36,7 +38,7 @@ function match {
         # All runners run on the x64 architecture currently. Emulation currently takes place in the application layer
         # (mason.nvim itself), and only for GitHub release sources. It's pointless to install these when not targeting x64.
         echo "Not targeting x64, skipping all provided packages."
-        skip_packages "$@"
+        skip-packages "$@"
         return 0
     fi
 
@@ -50,7 +52,7 @@ function match {
                     return 0
                     ;;
                 2)
-                    skip_packages "$@"
+                    skip-packages "$@"
                     return 0
                     ;;
                 *)
@@ -117,7 +119,7 @@ function install-opam {
         return 0
     elif [[ $RUNNER_OS == Windows ]]; then
         # Opam support via Chocolatey planned for 2.2
-        return 2
+        return $SKIP
     fi
     return 1
 }
@@ -129,9 +131,29 @@ function install-nim {
 
 function install-nix {
     if [[ $RUNNER_OS == Windows ]]; then
-        return 2
+        return $SKIP
     fi
     echo "setup_nix=true" >> "$GITHUB_OUTPUT"
+    return 0
+}
+
+function install-luarocks {
+    # Maybe use https://github.com/leafo/gh-actions-luarocks in the future.
+    if [[ $RUNNER_OS == macOS ]]; then
+        brew install luarocks
+        return 0
+    fi
+    return $SKIP
+}
+
+function install-zstd {
+    if [[ $RUNNER_OS == Windows ]]; then
+        choco install 7zip-zstd
+        return 0
+    elif [[ $RUNNER_OS == macOS ]]; then
+        brew install zstd
+        return 0
+    fi
     return 0
 }
 
@@ -145,6 +167,8 @@ match install-erlang "packages/erlang-ls/package.yaml"
 match install-opam "packages/ocaml-lsp/package.yaml"
 match install-nim "packages/nimlsp/package.yaml"
 match install-nix "packages/nil/package.yaml"
+match install-luarocks "packages/teal-language-server/package.yaml"
+match install-zstd "packages/zls/package.yaml"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"
 
