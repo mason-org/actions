@@ -167,7 +167,10 @@ match install-erlang "packages/erlang-ls/package.yaml"
 match install-opam "packages/ocaml-lsp/package.yaml"
 match install-nim "packages/nimlsp/package.yaml"
 match install-nix "packages/nil/package.yaml"
-match install-luarocks "packages/teal-language-server/package.yaml"
+match install-luarocks \
+    "packages/teal-language-server/package.yaml" \
+    "packages/luaformatter/package.yaml" \
+    "packages/luacheck/package.yaml"
 match install-zstd "packages/zls/package.yaml"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"
