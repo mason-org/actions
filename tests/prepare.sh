@@ -11,8 +11,15 @@ SKIPPED_PACKAGES=()
 SKIP=2
 
 function skip-package {
-    echo "Skipping package $1"
-    SKIPPED_PACKAGES+=("$1")
+    if [[ $pkg =~ ^pkg: ]]; then
+        while read -r pkg_file; do
+            echo "Skipping package $pkg_file"
+            SKIPPED_PACKAGES+=("$pkg_file")
+        done < <(grep -Flr "$pkg" packages)
+    else
+        echo "Skipping package $1"
+        SKIPPED_PACKAGES+=("$1")
+    fi
 }
 
 function skip-packages {
@@ -23,9 +30,15 @@ function skip-packages {
 
 function is-testing-package {
     local pkg=$1
-    for PKG in $PACKAGES; do
-        if [[ $PKG == "$pkg" ]]; then
-            return 0
+    for PKG in "${PACKAGES[@]}"; do
+        if [[ $pkg =~ ^pkg: ]]; then
+            if grep -Fq "id: $pkg" "$PKG"; then
+                return 0
+            fi
+        else
+            if [[ $PKG == "$pkg" ]]; then
+                return 0
+            fi
         fi
     done
     return 1
@@ -119,7 +132,7 @@ function install-opam {
         return 0
     elif [[ $RUNNER_OS == Windows ]]; then
         # Opam support via Chocolatey planned for 2.2
-        return $SKIP
+        return "$SKIP"
     fi
     return 1
 }
@@ -131,7 +144,7 @@ function install-nim {
 
 function install-nix {
     if [[ $RUNNER_OS == Windows ]]; then
-        return $SKIP
+        return "$SKIP"
     fi
     echo "setup_nix=true" >> "$GITHUB_OUTPUT"
     return 0
@@ -143,7 +156,7 @@ function install-luarocks {
         brew install luarocks
         return 0
     fi
-    return $SKIP
+    return "$SKIP"
 }
 
 function install-zstd {
@@ -164,13 +177,10 @@ fi
 install-yq
 
 match install-erlang "packages/erlang-ls/package.yaml"
-match install-opam "packages/ocaml-lsp/package.yaml"
+match install-luarocks "pkg:luarocks"
 match install-nim "packages/nimlsp/package.yaml"
 match install-nix "packages/nil/package.yaml"
-match install-luarocks \
-    "packages/teal-language-server/package.yaml" \
-    "packages/luaformatter/package.yaml" \
-    "packages/luacheck/package.yaml"
+match install-opam "pkg:opam"
 match install-zstd "packages/zls/package.yaml"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"
