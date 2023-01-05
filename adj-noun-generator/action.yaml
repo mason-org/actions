@@ -1,0 +1,21 @@
+---
+name: Generate adjective-noun pair
+description: Generates a random adjective-noun pair (e.g. "flawed-horse")
+
+outputs:
+  word:
+    description: The generated word.
+    value: ${{ steps.generate.outputs.word }}
+
+runs:
+  using: composite
+  steps:
+    - id: generate
+      name: Generate adj-noun word
+      shell: bash
+      run: |
+        WORD=$(echo "$GITHUB_ACTION_PATH/adjectives.txt" "$GITHUB_ACTION_PATH/nouns.txt" \
+          | xargs -n1 shuf -n 1 \
+          | head -c -1 \
+          | tr '\n' '-')
+        printf "word=%s" "$WORD" >> "$GITHUB_OUTPUT"

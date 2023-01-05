@@ -167,7 +167,7 @@ function install-zstd {
         brew install zstd
         return 0
     fi
-    return 0
+    return "$SKIP"
 }
 
 if [[ $RUNNER_OS == Linux ]]; then
