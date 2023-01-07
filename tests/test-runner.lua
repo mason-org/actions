@@ -1,8 +1,10 @@
-local TARGET, PACKAGES, GITHUB_ACTION_PATH, SKIPPED_PACKAGES =
-    vim.env.TARGET, vim.env.PACKAGES, vim.env.GITHUB_ACTION_PATH, vim.env.SKIPPED_PACKAGES
+local TARGET, VERSION, PACKAGES, GITHUB_ACTION_PATH, SKIPPED_PACKAGES =
+    vim.env.TARGET, vim.env.VERSION, vim.env.PACKAGES, vim.env.GITHUB_ACTION_PATH, vim.env.SKIPPED_PACKAGES
 
 assert(TARGET, "$TARGET not set.")
 assert(PACKAGES, "$PACKAGES not set.")
+
+local DEBUG = vim.env.RUNNER_DEBUG == "1"
 
 if GITHUB_ACTION_PATH then
     vim.opt.rtp:prepend(GITHUB_ACTION_PATH .. "/mason.nvim")
@@ -42,7 +44,7 @@ local log = setmetatable({}, {
 })
 
 require("mason").setup {
-    log_level = vim.log.levels[(vim.env.RUNNER_DEBUG == "1" and "DEBUG") or "INFO"],
+    log_level = vim.log.levels[DEBUG and "DEBUG" or "INFO"],
 }
 
 ---@param pkg_path string
@@ -84,7 +86,7 @@ local function should_skip(pkg)
             end
         end
 
-        return try(registry_installer.parse(pkg.spec, { target = TARGET }):map(_.always(nil)):or_else(function(err)
+        return try(registry_installer.parse(pkg.spec, { target = TARGET, version = VERSION }):map(_.always(nil)):or_else(function(err)
             if err == "PLATFORM_UNSUPPORTED" then
                 return Result.success "Unsupported platform."
             else
@@ -110,8 +112,8 @@ local ok, err = pcall(a.run_blocking, function()
                 a.wait(function(resolve, reject)
                     pkg:once("install:success", resolve)
                     pkg:once("install:failed", reject)
-                    local handle = pkg:install { target = TARGET, debug = true }
-                    if vim.env.RUNNER_DEBUG == "1" then
+                    local handle = pkg:install { target = TARGET, version = VERSION, debug = DEBUG }
+                    if DEBUG then
                         handle:on("stdout", vim.schedule_wrap(print)):on("stderr", vim.schedule_wrap(print))
                     end
                 end)
