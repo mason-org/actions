@@ -195,8 +195,6 @@ bucket
 budget
 buffer
 buffet
-bug
-buggy
 bugle
 bulb
 bull
@@ -575,7 +573,6 @@ fir
 fire
 fired
 fish
-fix
 flag
 flame
 flamingo
