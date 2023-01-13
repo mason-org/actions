@@ -30,7 +30,7 @@ function skip-packages {
 
 function is-testing-package {
     local pkg=$1
-    for PKG in "${PACKAGES[@]}"; do
+    for PKG in ${PACKAGES[@]}; do
         if [[ $pkg =~ ^pkg: ]]; then
             if grep -Fq "id: $pkg" "$PKG"; then
                 return 0
