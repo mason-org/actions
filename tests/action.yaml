@@ -53,7 +53,7 @@ runs:
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
       shell: bash
       run: |
-        git clone https://github.com/williamboman/mason.nvim "$GITHUB_ACTION_PATH/mason.nvim"
+        git clone https://git.redwill.se/williamboman/mason.nvim "$GITHUB_ACTION_PATH/mason.nvim"
         git -C "$GITHUB_ACTION_PATH/mason.nvim" fetch origin static-registry
         git -C "$GITHUB_ACTION_PATH/mason.nvim" checkout FETCH_HEAD
 
