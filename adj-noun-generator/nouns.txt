@@ -57,7 +57,6 @@ attack
 attic
 audio
 august
-aunt
 aura
 author
 automobile
@@ -243,7 +242,6 @@ cartoon
 case
 cash
 cast
-cat
 catla
 catsup
 cattle
@@ -335,7 +333,6 @@ coin
 coke
 cold
 collar
-colon
 colony
 color
 colt
@@ -415,9 +412,7 @@ data
 date
 datum
 day
-dead
 deal
-death
 debt
 debtor
 decade
@@ -455,7 +450,6 @@ diving
 dock
 doctor
 doe
-dog
 doll
 dollar
 dolphin
@@ -740,7 +734,6 @@ hill
 hip
 hippo
 hockey
-hoe
 hog
 hole
 home
@@ -795,7 +788,6 @@ jackal
 jacket
 jade
 jaguar
-jail
 jam
 james
 japan
@@ -1001,7 +993,6 @@ mohawk
 mola
 mole
 molly
-mom
 monday
 money
 monkey
@@ -1063,7 +1054,6 @@ novel
 nuke
 number
 nurse
-nut
 nylon
 oak
 oat
@@ -1156,7 +1146,6 @@ period
 person
 peru
 pest
-pet
 petrol
 phlox
 phoenix
@@ -1228,7 +1217,6 @@ press
 price
 priest
 print
-prison
 profit
 prose
 pruner
@@ -1425,7 +1413,6 @@ singer
 single
 sink
 siren
-sister
 sitter
 six
 size
@@ -1677,7 +1664,6 @@ twist
 two
 tyvek
 umbrella
-uncle
 unicorn
 unit
 use
