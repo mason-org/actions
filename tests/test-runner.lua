@@ -81,7 +81,9 @@ local function should_skip(pkg)
         end
 
         if pkg.spec.ci_skip then
-            if _.any(_.equals(TARGET), pkg.spec.ci_skip) then
+            if pkg.spec.ci_skip == true then
+                return "ci_skip enabled for all targets"
+            elseif _.any(_.equals(TARGET), pkg.spec.ci_skip) then
                 return "ci_skip enabled for current target"
             end
         end
