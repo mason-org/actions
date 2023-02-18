@@ -1345,7 +1345,6 @@ saw
 sax
 scale
 scarf
-scat
 scene
 scent
 school
