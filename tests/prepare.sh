@@ -120,6 +120,11 @@ function install-erlang {
     fi
 }
 
+function install-ruby {
+    echo "setup_ruby=true" >> "$GITHUB_OUTPUT"
+    return 0
+}
+
 function install-opam {
     if [[ $RUNNER_OS == macOS ]]; then
         brew install opam
@@ -181,6 +186,7 @@ match install-luarocks "pkg:luarocks"
 match install-nim "packages/nimlsp/package.yaml"
 match install-nix "packages/nil/package.yaml"
 match install-opam "pkg:opam"
+match install-ruby "pkg:gem"
 match install-zstd "packages/zls/package.yaml"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"
