@@ -179,6 +179,10 @@ function install-java {
     echo "setup_java=true" >> "$GITHUB_OUTPUT"
 }
 
+function install-golang {
+    echo "setup_golang=true" >> "$GITHUB_OUTPUT"
+}
+
 if [[ $RUNNER_OS == Linux ]]; then
     sudo apt update
 fi
@@ -192,6 +196,7 @@ match install-nim "packages/nimlsp/package.yaml"
 match install-nix "packages/nil/package.yaml"
 match install-opam "pkg:opam"
 match install-ruby "pkg:gem"
+match install-golang "pkg:golang"
 match install-zstd "packages/zls/package.yaml"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"
