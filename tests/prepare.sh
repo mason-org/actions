@@ -175,6 +175,10 @@ function install-zstd {
     return "$SKIP"
 }
 
+function install-java {
+    echo "setup_java=true" >> "$GITHUB_OUTPUT"
+}
+
 if [[ $RUNNER_OS == Linux ]]; then
     sudo apt update
 fi
@@ -182,6 +186,7 @@ fi
 install-yq
 
 match install-erlang "packages/erlang-ls/package.yaml"
+match install-java "packages/bzl/package.yaml"
 match install-luarocks "pkg:luarocks"
 match install-nim "packages/nimlsp/package.yaml"
 match install-nix "packages/nil/package.yaml"

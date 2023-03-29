@@ -32,6 +32,12 @@ runs:
       with:
         nix_path: nixpkgs=channel:nixos-unstable
 
+    - if: ${{ steps.prepare.outputs.setup_java == 'true' }}
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '18'
+
     - if: ${{ steps.prepare.outputs.setup_nim == 'true' }}
       uses: jiro4989/setup-nim-action@v1
 
