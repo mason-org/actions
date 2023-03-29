@@ -190,7 +190,7 @@ fi
 install-yq
 
 match install-erlang "packages/erlang-ls/package.yaml"
-match install-java "packages/bzl/package.yaml"
+match install-java "packages/java-language-server/package.yaml"
 match install-luarocks "pkg:luarocks"
 match install-nim "packages/nimlsp/package.yaml"
 match install-nix "packages/nil/package.yaml"
