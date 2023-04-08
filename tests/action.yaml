@@ -73,3 +73,4 @@ runs:
       env:
         PACKAGES: ${{ steps.prepare.outputs.PACKAGES }}
         TARGET: ${{ inputs.target }}
+        MASON_VERBOSE_LOGS: "1"
