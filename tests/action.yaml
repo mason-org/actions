@@ -67,6 +67,15 @@ runs:
         neovim: true
         version: v0.8.0
 
+    - shell: bash
+      id: healthchecks
+      run: |
+        nvim --headless \
+          -c "set rtp^=$GITHUB_ACTION_PATH/mason.nvim" \
+          -c 'checkhealth mason' \
+          -c 'lua print(table.concat(vim.api.nvim_buf_get_lines(0, 1, -1, false), "\n"))' \
+          -c qa
+
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
       run: nvim --headless -c "luafile $GITHUB_ACTION_PATH/test-runner.lua" -c 1cq
       shell: bash
