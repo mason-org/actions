@@ -67,7 +67,8 @@ runs:
         neovim: true
         version: v0.8.0
 
-    - shell: bash
+    - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
+      shell: bash
       id: healthchecks
       run: |
         nvim --headless \
