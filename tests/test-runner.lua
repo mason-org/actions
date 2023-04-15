@@ -88,13 +88,13 @@ local function get_target(pkg)
     end
 
     local targets = { TARGET }
-    if TARGET == "darwin_x64" or TARGET == "darwin_arm64" then
+    if vim.startswith(TARGET, "darwin") then
         table.insert(targets, "darwin")
         table.insert(targets, "unix")
-    elseif TARGET == "linux_x64" or TARGET == "linux_arm64" then
+    elseif vim.startswith(TARGET, "linux") then
         table.insert(targets, "linux")
         table.insert(targets, "unix")
-    elseif TARGET == "win_x64" or TARGET == "win_arm64" then
+    elseif vim.startswith(TARGET, "win") then
         table.insert(targets, "win")
     end
 
