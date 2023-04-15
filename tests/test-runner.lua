@@ -70,32 +70,41 @@ end
 local is_not_empty = _.complement(_.equals "")
 
 ---@param pkg Package
-local function should_skip(pkg)
-    return Result.try(function(try)
-        if not IS_RUNNING_NATIVE_TARGET then
-            local purl = try(Purl.parse(pkg.spec.source.id))
-            if purl.type ~= "generic" and not (purl.type == "github" and pkg.spec.source.asset ~= nil) then
-                -- Currently we can only meaningfully emulate a different target platform for GitHub release sources.
-                return ("Cannot emulate target: %q"):format(TARGET)
-            end
+local function get_target(pkg)
+    if not IS_RUNNING_NATIVE_TARGET then
+        local purl = Purl.parse(pkg.spec.source.id):get_or_throw()
+        if purl.type ~= "generic" and not (purl.type == "github" and pkg.spec.source.asset ~= nil) then
+            -- Currently we can only meaningfully emulate a different target platform for GitHub release sources.
+            return Result.failure(("Cannot emulate target: %q"):format(TARGET))
         end
+    end
 
-        if pkg.spec.ci_skip then
-            if pkg.spec.ci_skip == true then
-                return "ci_skip enabled for all targets"
-            elseif _.any(_.equals(TARGET), pkg.spec.ci_skip) then
-                return "ci_skip enabled for current target"
-            end
+    if pkg.spec.ci_skip then
+        if pkg.spec.ci_skip == true then
+            return Result.failure "ci_skip enabled for all targets"
+        elseif _.any(_.equals(TARGET), pkg.spec.ci_skip) then
+            return Result.failure "ci_skip enabled for current target"
         end
+    end
 
-        return try(registry_installer.parse(pkg.spec, { target = TARGET, version = VERSION }):map(_.always(nil)):or_else(function(err)
-            if err == "PLATFORM_UNSUPPORTED" then
-                return Result.success "Unsupported platform."
-            else
-                return Result.failure(err)
-            end
-        end))
-    end)
+    local targets = { TARGET }
+    if TARGET == "darwin_x64" or TARGET == "darwin_arm64" then
+        table.insert(targets, "darwin")
+        table.insert(targets, "unix")
+    elseif TARGET == "linux_x64" or TARGET == "linux_arm64" then
+        table.insert(targets, "linux")
+        table.insert(targets, "unix")
+    elseif TARGET == "win_x64" or TARGET == "win_arm64" then
+        table.insert(targets, "win")
+    end
+
+    for _, target in ipairs(targets) do
+        local result = registry_installer.parse(pkg.spec, { target = target, version = VERSION })
+        if result:is_success() then
+            return Result.success(target)
+        end
+    end
+    return Result.failure "Unsupported platform."
 end
 
 local ok, err = pcall(a.run_blocking, function()
@@ -108,21 +117,22 @@ local ok, err = pcall(a.run_blocking, function()
             if vim.in_fast_event() then
                 a.scheduler()
             end
-            local skip_reason = try(should_skip(pkg))
-            if skip_reason == nil then
-                a.scheduler()
-                a.wait(function(resolve, reject)
-                    pkg:once("install:success", resolve)
-                    pkg:once("install:failed", reject)
-                    local handle = pkg:install { target = TARGET, version = VERSION, debug = DEBUG }
-                    if DEBUG then
-                        handle:on("stdout", vim.schedule_wrap(print)):on("stderr", vim.schedule_wrap(print))
-                    end
+            get_target(pkg)
+                :on_success(function(target)
+                    a.scheduler()
+                    a.wait(function(resolve, reject)
+                        pkg:once("install:success", resolve)
+                        pkg:once("install:failed", reject)
+                        local handle = pkg:install { target = target, version = VERSION, debug = DEBUG }
+                        if DEBUG then
+                            handle:on("stdout", vim.schedule_wrap(print)):on("stderr", vim.schedule_wrap(print))
+                        end
+                    end)
                 end)
-            else
-                a.scheduler()
-                log.info(("Skipping package %q: %s."):format(pkg.name, skip_reason))
-            end
+                :on_failure(function(err)
+                    a.scheduler()
+                    log.info(("Skipping package %q: %s."):format(pkg.name, err))
+                end)
         end
     end):on_failure(error)
 end)
