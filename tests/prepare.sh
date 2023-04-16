@@ -183,6 +183,16 @@ function install-golang {
     echo "setup_golang=true" >> "$GITHUB_OUTPUT"
 }
 
+function install-r {
+    if [[ $RUNNER_OS == Linux ]]; then
+        # The "remotes" package relies on libcurl to compile R curl bindings.
+        sudo apt install libcurl4-openssl-dev
+        echo "setup_R=true" >> "$GITHUB_OUTPUT"
+    else
+        echo "setup_R=true" >> "$GITHUB_OUTPUT"
+    fi
+}
+
 if [[ $RUNNER_OS == Linux ]]; then
     sudo apt update
 fi
@@ -190,13 +200,14 @@ fi
 install-yq
 
 match install-erlang "packages/erlang-ls/package.yaml"
+match install-golang "pkg:golang"
 match install-java "packages/java-language-server/package.yaml"
 match install-luarocks "pkg:luarocks"
 match install-nim "packages/nimlsp/package.yaml"
 match install-nix "packages/nil/package.yaml"
 match install-opam "pkg:opam"
+match install-r "packages/r-languageserver/package.yaml"
 match install-ruby "pkg:gem"
-match install-golang "pkg:golang"
 match install-zstd "packages/zls/package.yaml"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"

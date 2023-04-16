@@ -32,6 +32,9 @@ runs:
       with:
         nix_path: nixpkgs=channel:nixos-unstable
 
+    - if: ${{ steps.prepare.outputs.setup_R == 'true' }}
+      uses: r-lib/actions/setup-r@v2
+
     - if: ${{ steps.prepare.outputs.setup_java == 'true' }}
       uses: actions/setup-java@v3
       with:
