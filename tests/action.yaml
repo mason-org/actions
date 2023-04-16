@@ -9,6 +9,9 @@ inputs:
   packages:
     required: true
     description: The packages to test (space separated string).
+  GITHUB_TOKEN:
+    required: true
+    description: GitHub token.
 
 runs:
   using: composite
@@ -87,3 +90,4 @@ runs:
         PACKAGES: ${{ steps.prepare.outputs.PACKAGES }}
         TARGET: ${{ inputs.target }}
         MASON_VERBOSE_LOGS: "1"
+        GITHUB_PAT: ${{ inputs.GITHUB_TOKEN }}
