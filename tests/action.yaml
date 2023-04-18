@@ -38,6 +38,9 @@ runs:
     - if: ${{ steps.prepare.outputs.setup_R == 'true' }}
       uses: r-lib/actions/setup-r@v2
 
+    - if: ${{ steps.prepare.outputs.setup_haskell == 'true' }}
+      uses: haskell/actions/setup@v2
+
     - if: ${{ steps.prepare.outputs.setup_java == 'true' }}
       uses: actions/setup-java@v3
       with:

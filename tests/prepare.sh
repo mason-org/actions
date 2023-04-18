@@ -193,6 +193,10 @@ function install-r {
     fi
 }
 
+function install-ghc {
+    echo "setup_haskell=true" >> "$GITHUB_OUTPUT"
+}
+
 if [[ $RUNNER_OS == Linux ]]; then
     sudo apt update
 fi
@@ -200,6 +204,7 @@ fi
 install-yq
 
 match install-erlang "packages/erlang-ls/package.yaml"
+match install-ghc "packages/haskell-language-server/package.yaml"
 match install-golang "pkg:golang"
 match install-java "packages/java-language-server/package.yaml"
 match install-luarocks "pkg:luarocks"

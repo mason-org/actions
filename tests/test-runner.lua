@@ -114,9 +114,7 @@ local ok, err = pcall(a.run_blocking, function()
 
         for __, pkg_path in ipairs(packages) do
             local pkg = try(parse_package_spec(pkg_path))
-            if vim.in_fast_event() then
-                a.scheduler()
-            end
+            a.scheduler()
             get_target(pkg)
                 :on_success(function(target)
                     a.scheduler()
