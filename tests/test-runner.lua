@@ -121,7 +121,7 @@ local ok, err = pcall(a.run_blocking, function()
                     a.wait(function(resolve, reject)
                         pkg:once("install:success", resolve)
                         pkg:once("install:failed", reject)
-                        local handle = pkg:install { target = target, version = VERSION, debug = DEBUG }
+                        local handle = pkg:install { target = target, version = VERSION, debug = DEBUG, strict = true }
                         if DEBUG then
                             handle:on("stdout", vim.schedule_wrap(print)):on("stderr", vim.schedule_wrap(print))
                         end
