@@ -87,6 +87,15 @@ runs:
           -c qa
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
+      shell: bash
+      run: |
+        nvim --headless \
+          -c "set rtp^=$GITHUB_ACTION_PATH/mason.nvim" \
+          -c 'lua require("mason").setup()' \
+          -c 'MasonInstall yq' \
+          -c qa
+
+    - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
       run: nvim --headless -c "luafile $GITHUB_ACTION_PATH/test-runner.lua" -c 1cq
       shell: bash
       env:

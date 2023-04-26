@@ -78,38 +78,6 @@ function match {
     return 0
 }
 
-function install-yq {
-    echo "Installing yq!"
-    if [[ $RUNNER_OS == macOS ]]; then
-        if [[ $RUNNER_ARCH == X64 ]]; then
-            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_darwin_amd64" -o /usr/local/bin/yq
-            sudo chmod +x /usr/local/bin/yq
-            return 0
-        elif [[ $RUNNER_ARCH == ARM64 ]]; then
-            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_darwin_arm64" -o /usr/local/bin/yq
-            sudo chmod +x /usr/local/bin/yq
-            return 0
-        fi
-    elif [[ $RUNNER_OS == Linux ]]; then
-        if [[ $RUNNER_ARCH == X64 ]]; then
-            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_amd64" -o /usr/local/bin/yq
-            sudo chmod +x /usr/local/bin/yq
-            return 0
-        elif [[ $RUNNER_ARCH == ARM64 ]]; then
-            sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_linux_arm64" -o /usr/local/bin/yq
-            sudo chmod +x /usr/local/bin/yq
-            return 0
-        fi
-    elif [[ $RUNNER_OS == Windows ]]; then
-        if [[ $RUNNER_ARCH == X64 ]]; then
-            curl -fL "https://github.com/mikefarah/yq/releases/download/v4.30.6/yq_windows_amd64.exe" -o /c/ProgramData/chocolatey/bin/yq.exe
-            return 0
-        fi
-    fi
-    >&2 echo "Unable to find yq download url for ${RUNNER_OS}_$RUNNER_ARCH"
-    return 1
-}
-
 function install-erlang {
     if [[ $RUNNER_OS == macOS ]]; then
         brew install erlang rebar3
@@ -200,8 +168,6 @@ function install-ghc {
 if [[ $RUNNER_OS == Linux ]]; then
     sudo apt update
 fi
-
-install-yq
 
 match install-erlang "packages/erlang-ls/package.yaml"
 match install-ghc "packages/haskell-language-server/package.yaml"
