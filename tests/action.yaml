@@ -40,6 +40,8 @@ runs:
 
     - if: ${{ steps.prepare.outputs.setup_haskell == 'true' }}
       uses: haskell/actions/setup@v2
+      with:
+        enable-stack: true
 
     - if: ${{ steps.prepare.outputs.setup_java == 'true' }}
       uses: actions/setup-java@v3
