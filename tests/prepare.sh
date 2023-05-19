@@ -174,7 +174,7 @@ match install-ghc "packages/haskell-language-server/package.yaml" "packages/hask
 match install-golang "pkg:golang"
 match install-java "packages/java-language-server/package.yaml"
 match install-luarocks "pkg:luarocks"
-match install-nim "packages/nimlsp/package.yaml"
+match install-nim "packages/nimlsp/package.yaml" "packages/nimlangserver/package.yaml"
 match install-nix "packages/nil/package.yaml"
 match install-opam "pkg:opam"
 match install-r "packages/r-languageserver/package.yaml"
