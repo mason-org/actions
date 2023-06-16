@@ -47,7 +47,7 @@ require("mason").setup {
     log_level = vim.log.levels[DEBUG and "DEBUG" or "INFO"],
 }
 
-local yq = vim.fn.exepath("yq")
+local yq = vim.fn.exepath "yq"
 
 ---@param pkg_path string
 local function parse_package_spec(pkg_path)
@@ -72,7 +72,7 @@ end
 local is_not_empty = _.complement(_.equals "")
 
 ---@param pkg Package
-local function get_target(pkg)
+local function get_targets(pkg)
     if not IS_RUNNING_NATIVE_TARGET then
         local purl = Purl.parse(pkg.spec.source.id):get_or_throw()
         if purl.type ~= "generic" and not (purl.type == "github" and pkg.spec.source.asset ~= nil) then
@@ -100,13 +100,41 @@ local function get_target(pkg)
         table.insert(targets, "win")
     end
 
-    for _, target in ipairs(targets) do
-        local result = registry_installer.parse(pkg.spec, { target = target, version = VERSION })
-        if result:is_success() then
-            return Result.success(target)
+    if VERSION then
+        for _, target in ipairs(targets) do
+            if registry_installer.parse(pkg.spec, { target = target, version = VERSION }):is_success() then
+                return Result.success { { target = target, version = VERSION } }
+            else
+                return Result.failure(("Unsupported platform (version=%s)."):format(VERSION))
+            end
         end
     end
-    return Result.failure "Unsupported platform."
+
+    local sources = vim.list_extend({ pkg.spec.source }, pkg.spec.source.version_overrides or {})
+    local resolved_targets = {}
+    for _, source in ipairs(sources) do
+        for _, target in ipairs(targets) do
+            if
+                Purl.parse(source.id)
+                    :and_then(function(purl)
+                        return registry_installer
+                            .parse(pkg.spec, { target = target, version = purl.version })
+                            :on_success(function()
+                                table.insert(resolved_targets, { target = target, version = purl.version })
+                            end)
+                    end)
+                    :is_success()
+            then
+                break
+            end
+        end
+    end
+
+    if #resolved_targets > 0 then
+        return Result.success(resolved_targets)
+    else
+        return Result.success "Unsupported platform."
+    end
 end
 
 local ok, err = pcall(a.run_blocking, function()
@@ -117,17 +145,25 @@ local ok, err = pcall(a.run_blocking, function()
         for __, pkg_path in ipairs(packages) do
             local pkg = try(parse_package_spec(pkg_path))
             a.scheduler()
-            get_target(pkg)
-                :on_success(function(target)
-                    a.scheduler()
-                    a.wait(function(resolve, reject)
-                        pkg:once("install:success", resolve)
-                        pkg:once("install:failed", reject)
-                        local handle = pkg:install { target = target, version = VERSION, debug = DEBUG, strict = true }
-                        if DEBUG then
-                            handle:on("stdout", vim.schedule_wrap(print)):on("stderr", vim.schedule_wrap(print))
-                        end
-                    end)
+            get_targets(pkg)
+                :on_success(function(targets)
+                    for _, target in ipairs(targets) do
+                        a.scheduler()
+                        log.info("Installing", pkg.name, target)
+                        a.wait(function(resolve, reject)
+                            pkg:once("install:success", resolve)
+                            pkg:once("install:failed", reject)
+                            local handle = pkg:install {
+                                target = target.target,
+                                version = target.version,
+                                debug = DEBUG,
+                                strict = true,
+                            }
+                            if DEBUG then
+                                handle:on("stdout", vim.schedule_wrap(print)):on("stderr", vim.schedule_wrap(print))
+                            end
+                        end)
+                    end
                 end)
                 :on_failure(function(err)
                     a.scheduler()
