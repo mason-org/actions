@@ -133,7 +133,7 @@ local function get_targets(pkg)
     if #resolved_targets > 0 then
         return Result.success(resolved_targets)
     else
-        return Result.success "Unsupported platform."
+        return Result.failure "Unsupported platform."
     end
 end
 
