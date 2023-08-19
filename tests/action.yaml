@@ -31,7 +31,7 @@ runs:
         rebar3-version: '3'
 
     - if: ${{ steps.prepare.outputs.setup_nix == 'true' }}
-      uses: cachix/install-nix-action@v18
+      uses: cachix/install-nix-action@v22
       with:
         nix_path: nixpkgs=channel:nixos-unstable
 
