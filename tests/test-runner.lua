@@ -159,9 +159,7 @@ local ok, err = pcall(a.run_blocking, function()
                                 debug = DEBUG,
                                 strict = true,
                             }
-                            if DEBUG then
-                                handle:on("stdout", vim.schedule_wrap(print)):on("stderr", vim.schedule_wrap(print))
-                            end
+                            handle:on("stdout", io.write):on("stderr", io.write)
                         end)
                     end
                 end)
