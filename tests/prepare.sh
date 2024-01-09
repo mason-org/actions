@@ -169,7 +169,7 @@ if [[ $RUNNER_OS == Linux ]]; then
     sudo apt update
 fi
 
-match install-erlang "packages/erlang-ls/package.yaml"
+match install-erlang "packages/erlang-ls/package.yaml" "packages/erlang-debugger/package.yaml"
 match install-ghc "packages/haskell-language-server/package.yaml" "packages/haskell-debug-adapter/package.yaml"
 match install-golang "pkg:golang"
 match install-java "packages/java-language-server/package.yaml"
