@@ -70,10 +70,8 @@ runs:
       uses: leafo/gh-actions-lua@v10
 
     - if: ${{ steps.prepare.outputs.setup_luarocks == 'true' }}
-      # uses hishamhm's fork, https://github.com/leafo/gh-actions-luarocks seems unmaintained
-      uses: hishamhm/gh-actions-luarocks@win-updates
-      with:
-        luaRocksVersion: '3.11.0'
+      # uses fork with Windows support added by hishamhm, upstream https://github.com/leafo/gh-actions-luarocks seems unmaintained
+      uses: mason-org/gh-actions-luarocks@v5
 
     - if: ${{ runner.os == 'macOS' && steps.prepare.outputs.PACKAGES != '' }}
       uses: actions/setup-python@v4
