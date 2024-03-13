@@ -63,7 +63,7 @@ runs:
         ruby-version: '3.1'
 
     - if: ${{ steps.prepare.outputs.setup_luarocks == 'true' }}
-      uses: leafo/gh-actions-lua@v4
+      uses: leafo/gh-actions-lua@v10
 
     - if: ${{ steps.prepare.outputs.setup_luarocks == 'true' }}
       # uses hishamhm's fork, https://github.com/leafo/gh-actions-luarocks seems unmaintained
