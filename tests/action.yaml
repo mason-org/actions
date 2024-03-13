@@ -64,7 +64,7 @@ runs:
 
     - if: ${{ runner.os == 'Windows' && steps.prepare.outputs.setup_luarocks == 'true' }}
       name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v2
+      uses: ilammy/msvc-dev-cmd@v1
 
     - if: ${{ steps.prepare.outputs.setup_luarocks == 'true' }}
       uses: leafo/gh-actions-lua@v10
