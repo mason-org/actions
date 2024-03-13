@@ -73,7 +73,7 @@ runs:
       # uses hishamhm's fork, https://github.com/leafo/gh-actions-luarocks seems unmaintained
       uses: hishamhm/gh-actions-luarocks@win-updates
       with:
-        luarocksVersion: '3.11.0'
+        luaRocksVersion: '3.11.0'
 
     - if: ${{ runner.os == 'macOS' && steps.prepare.outputs.PACKAGES != '' }}
       uses: actions/setup-python@v4
