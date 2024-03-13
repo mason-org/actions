@@ -62,6 +62,15 @@ runs:
       with:
         ruby-version: '3.1'
 
+    - if: ${{ steps.prepare.outputs.setup_luarocks == 'true' }}
+      uses: leafo/gh-actions-lua@v4
+
+    - if: ${{ steps.prepare.outputs.setup_luarocks == 'true' }}
+      # uses hishamhm's fork, https://github.com/leafo/gh-actions-luarocks seems unmaintained
+      uses: hishamhm/gh-actions-luarocks@win-updates
+      with:
+        luarocksVersion: '3.11.0'
+
     - if: ${{ runner.os == 'macOS' && steps.prepare.outputs.PACKAGES != '' }}
       uses: actions/setup-python@v4
       with:

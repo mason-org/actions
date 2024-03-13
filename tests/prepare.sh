@@ -124,12 +124,7 @@ function install-nix {
 }
 
 function install-luarocks {
-    # Maybe use https://github.com/leafo/gh-actions-luarocks in the future.
-    if [[ $RUNNER_OS == macOS ]]; then
-        brew install luarocks
-        return 0
-    fi
-    return "$SKIP"
+    echo "setup_luarocks=true" >> "$GITHUB_OUTPUT"
 }
 
 function install-zstd {
