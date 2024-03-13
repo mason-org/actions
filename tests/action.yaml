@@ -62,6 +62,10 @@ runs:
       with:
         ruby-version: '3.1'
 
+    - if: ${{ runner.os == 'Windows' && steps.prepare.outputs.setup_luarocks == 'true' }}
+      name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
     - if: ${{ steps.prepare.outputs.setup_luarocks == 'true' }}
       uses: leafo/gh-actions-lua@v10
 
