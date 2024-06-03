@@ -168,6 +168,10 @@ function install-composer {
     return 0
 }
 
+function install-python {
+    echo "setup_python=true" >> "$GITHUB_OUTPUT"
+}
+
 if [[ $RUNNER_OS == Linux ]]; then
     sudo apt update
 fi
@@ -184,6 +188,7 @@ match install-r "packages/r-languageserver/package.yaml"
 match install-ruby "pkg:gem"
 match install-zstd "packages/zls/package.yaml"
 match install-composer "pkg:composer"
+match install-python "pkg:pypi"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"
 

@@ -73,10 +73,16 @@ runs:
       # uses fork with Windows support added by hishamhm, upstream https://github.com/leafo/gh-actions-luarocks seems unmaintained
       uses: mason-org/gh-actions-luarocks@v5
 
-    - if: ${{ runner.os == 'macOS' && steps.prepare.outputs.PACKAGES != '' }}
-      uses: actions/setup-python@v4
+    - if: ${{ steps.prepare.outputs.setup_python == 'true' }}
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.10'
+        # The last specified version will be used as the default one.
+        python-version: |
+          3.8
+          3.9
+          3.10
+          3.11
+          3.12
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
       shell: bash
