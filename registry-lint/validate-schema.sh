@@ -9,7 +9,7 @@ set -euo pipefail
 npm install -g ajv ajv-cli ajv-formats
 
 SCHEMA_FILE=$(mktemp -t XXXX.json)
-curl -fsSL https://raw.githubusercontent.com/mason-org/json-schema/main/bundled-schema.json > "$SCHEMA_FILE"
+curl -fsSL https://github.com/mason-org/registry-schema/releases/latest/download/package.schema.json > "$SCHEMA_FILE"
 <<< "$PACKAGES" tr ' ' '\n' | xargs -P10 -I{} ajv validate -d {} -c ajv-formats -s "$SCHEMA_FILE"
 
 for pkg in $PACKAGES; do
