@@ -1,0 +1,18 @@
+---
+name: Setup yq
+description: Action for setting up yq. Only supports Linux x64.
+
+inputs:
+  version:
+    description: yq version.
+    required: false
+    default: 4.30.6
+
+runs:
+  using: composite
+  steps:
+    - name: Install yq
+      shell: bash
+      run: |
+        sudo curl -fL "https://github.com/mikefarah/yq/releases/download/v${{ inputs.version }}/yq_linux_amd64" -o /usr/local/bin/yq
+        sudo chmod +x /usr/local/bin/yq

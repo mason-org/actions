@@ -1,0 +1,56 @@
+---
+name: Registry release
+description: Action for creating registry releases.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        # We only need information for the HEAD commit.
+        fetch-depth: 2
+
+    - name: Install yq
+      uses: mason-org/actions/setup-yq@v1
+
+    - id: adjnoun
+      uses: mason-org/actions/adj-noun-generator@v1
+
+    - id: tag
+      name: Get/create tag
+      shell: bash
+      run: |
+        if [[ $(git diff-tree --name-only --no-commit-id HEAD -- packages | wc -l) -gt 0 ]]; then
+          declare TAG
+          TAG=$(date +%Y-%m-%d)-$ADJNOUN
+          printf "tag=%s\nshould-release=true" "$TAG" >> "$GITHUB_OUTPUT"
+          echo "::notice title=Creating tag::Tagging and pushing $TAG…"
+          git tag "$TAG" HEAD
+          git push origin "$TAG"
+        else
+          echo "::notice title=Nothing to release::No package definitions were changed. No release will be created."
+          echo "should-release=false" >> "$GITHUB_OUTPUT"
+        fi
+      env:
+        GITHUB_REF: ${{ github.ref }}
+        GITHUB_REF_NAME: ${{ github.ref_name }}
+        ADJNOUN: ${{ steps.adjnoun.outputs.word }}
+
+    - name: Compile
+      if: ${{ steps.tag.outputs.should-release == 'true' }}
+      shell: bash
+      run: |
+        yq ea '[.]' -o json packages/*/package.yaml > registry.json
+        zip -r registry.json.zip registry.json
+        sha256sum registry.json registry.json.zip > checksums.txt
+
+    - name: Release
+      if: ${{ steps.tag.outputs.should-release == 'true' }}
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.tag.outputs.tag }}
+        fail_on_unmatched_files: true
+        generate_release_notes: false
+        files: |
+          registry.json.zip
+          checksums.txt

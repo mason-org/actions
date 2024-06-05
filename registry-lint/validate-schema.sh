@@ -8,7 +8,9 @@ set -euo pipefail
 
 npm install -g ajv ajv-cli ajv-formats
 
-<<< "$PACKAGES" tr ' ' '\n' | xargs -P10 -I{} ajv validate -d {} --spec=draft2020 -c ajv-formats -s schemas/package.schema.json -r 'schemas/{components,enums}/**/*.json'
+SCHEMA_FILE=$(mktemp -t XXXX.json)
+curl -fsSL https://raw.githubusercontent.com/mason-org/json-schema/main/bundled-schema.json > "$SCHEMA_FILE"
+<<< "$PACKAGES" tr ' ' '\n' | xargs -P10 -I{} ajv validate -d {} -c ajv-formats -s "$SCHEMA_FILE"
 
 for pkg in $PACKAGES; do
     # Check if CRLF characters exist in the file
@@ -20,7 +22,7 @@ for pkg in $PACKAGES; do
     # Ensure that the directory name corresponds with the package name
     pkg_name=$(sed -nE 's/name: (.+)$/\1/p' "$pkg")
     if [[ "$pkg" != "packages/${pkg_name}/package.yaml" ]]; then
-        >&2 echo "::error file=$pkg::${pkg_name} name doesn't match directory name ($pkg)."
+        >&2 echo "::error file=$pkg::Package name ($pkg_name) doesn't match directory name (${pkg%/*})."
         exit 1
     else
         echo "$pkg has valid package name $pkg_name"
