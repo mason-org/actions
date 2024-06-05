@@ -1,0 +1,104 @@
+---
+name: Package tests
+
+on:
+  workflow_call:
+    inputs:
+      packages:
+        required: false
+        type: string
+
+jobs:
+  package-targets:
+    name: Identify packages to test
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.via-input.outputs.packages || steps.changed-packages.outputs.all_changed_files }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get packages from input
+        if: ${{ inputs.packages != '' }}
+        id: via-input
+        run: |
+          echo "packages=${{ inputs.packages }}" >> "$GITHUB_OUTPUT"
+
+      - name: Identify changed package definitions
+        if: ${{ inputs.packages == '' }}
+        id: changed-packages
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            packages/**/package.yaml
+
+  tests:
+    name: Test packages
+    needs: package-targets
+    if: ${{ needs.package-targets.outputs.packages != '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - darwin_arm64
+          - darwin_x64
+          - linux_arm
+          - linux_arm64
+          - linux_arm64_gnu
+          - linux_arm_gnu
+          - linux_x64
+          - linux_x64_gnu
+          - linux_x86
+          - win_arm
+          - win_arm64
+          - win_x64
+          - win_x86
+
+        include:
+          - target: linux_x64
+            runs-on: ubuntu-latest
+          - target: linux_x64_gnu
+            runs-on: ubuntu-latest
+          - target: linux_x86
+            runs-on: ubuntu-latest
+          - target: linux_arm
+            runs-on: ubuntu-latest
+          - target: linux_arm_gnu
+            runs-on: ubuntu-latest
+          - target: linux_arm64
+            runs-on: ubuntu-latest
+          - target: linux_arm64_gnu
+            runs-on: ubuntu-latest
+          - target: darwin_x64
+            runs-on: macos-latest
+          - target: darwin_arm64
+            runs-on: macos-latest
+          - target: win_x64
+            runs-on: windows-latest
+          - target: win_x86
+            runs-on: windows-latest
+          - target: win_arm64
+            runs-on: windows-latest
+          - target: win_arm
+            runs-on: windows-latest
+
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mason-org/actions/tests@v1
+        with:
+          packages: ${{ needs.package-targets.outputs.packages }}
+          target: ${{ matrix.target }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # This job is used for branch protection rule
+  # Add this job to `Status checks that are required`
+  status-check:
+    name: Status check
+    runs-on: ubuntu-latest
+    needs: tests
+    if: 'failure() || cancelled()'
+    steps:
+      - run: exit 1
+
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json

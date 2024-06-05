@@ -1,0 +1,60 @@
+---
+name: Registry linting
+description: Linting of registries.
+
+inputs:
+  packages:
+    required: false
+    description: The packages to test (space separated string).
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      id: extraneous-files
+      run: |
+        mapfile -t EXTRA_FILES < <(find packages -type f -not -name package.yaml)
+        if [[ ${#EXTRA_FILES[@]} -gt 0 ]]; then
+            for file in "${EXTRA_FILES[@]}"; do
+                if [[ $file == */package.yml ]]; then
+                  echo "::error file=${file},line=1::File must be named exactly \"package.yaml\"."
+                else
+                  echo "::error file=${file},line=1::Only package.yaml files are allowed inside packages/."
+                fi
+            done
+            exit 1
+        fi
+
+    - name: Get packages from input
+      if: ${{ inputs.packages == '' }}
+      id: changed-packages
+      uses: tj-actions/changed-files@v44
+      with:
+        files: |
+          packages/**/package.yaml
+
+    - name: Prepare package targets
+      id: package-targets
+      shell: bash
+      run: |
+        if [[ "${{ inputs.packages }}" != '' ]]; then
+          echo "packages=${{ inputs.packages }}" >> "$GITHUB_OUTPUT"
+        else
+          echo "packages=${{ steps.changed-packages.outputs.all_changed_files }}" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Validate schema conformance
+      if: ${{ steps.package-targets.outputs.packages != '' }}
+      shell: bash
+      run: $GITHUB_ACTION_PATH/validate-schema.sh
+      env:
+        PACKAGES: ${{ steps.package-targets.outputs.packages }}
+
+    - name: Install yq
+      uses: mason-org/actions/setup-yq@v1
+
+    - name: Validate languages
+      if: ${{ steps.package-targets.outputs.packages != '' }}
+      shell: bash
+      run: |
+        cat ${{ steps.package-targets.outputs.packages }} | yq -I0 -o json '.languages' | jq --slurp '. | flatten' | node "$GITHUB_ACTION_PATH/validate-languages.js"
