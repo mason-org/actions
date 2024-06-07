@@ -85,20 +85,17 @@ runs:
           3.12
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
-      name: Clone mason.nvim
       shell: bash
       run: |
         git clone https://github.com/williamboman/mason.nvim "$GITHUB_ACTION_PATH/mason.nvim"
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
-      name: Setup neovim
       uses: rhysd/action-setup-vim@v1
       with:
         neovim: true
         version: v0.7.0
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
-      name: mason.nvim healthcheck
       shell: bash
       id: healthchecks
       run: |
@@ -109,11 +106,15 @@ runs:
           -c qa
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
-      name: Install yq
-      uses: mason-org/actions/setup-yq@v1
+      shell: bash
+      run: |
+        nvim --headless \
+          -c "set rtp^=$GITHUB_ACTION_PATH/mason.nvim" \
+          -c 'lua require("mason").setup()' \
+          -c 'MasonInstall yq' \
+          -c qa
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
-      name: Install packages
       run: nvim --headless -c "luafile $GITHUB_ACTION_PATH/test-runner.lua" -c 1cq
       shell: bash
       env:
