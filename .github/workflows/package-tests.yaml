@@ -11,7 +11,7 @@ on:
 jobs:
   package-targets:
     name: Identify packages to test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       packages: ${{ steps.via-input.outputs.packages || steps.changed-packages.outputs.all_changed_files }}
 
@@ -54,33 +54,35 @@ jobs:
           - win_x64
           - win_x86
 
+        # https://github.com/actions/runner-images/tree/main?tab=readme-ov-file#available-images
         include:
           - target: linux_x64
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-22.04
           - target: linux_x64_gnu
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-22.04
           - target: linux_x86
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-22.04
           - target: linux_arm
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-22.04
           - target: linux_arm_gnu
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-22.04
           - target: linux_arm64
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-22.04
           - target: linux_arm64_gnu
-            runs-on: ubuntu-latest
+            runs-on: ubuntu-22.04
           - target: darwin_x64
-            runs-on: macos-latest
+            # macos-13 runs on Intel (x64) hardware. x64 on macOS 14 (macos-14-large) requires a paid plan.
+            runs-on: macos-13
           - target: darwin_arm64
-            runs-on: macos-latest
+            runs-on: macos-14
           - target: win_x64
-            runs-on: windows-latest
+            runs-on: windows-2022
           - target: win_x86
-            runs-on: windows-latest
+            runs-on: windows-2022
           - target: win_arm64
-            runs-on: windows-latest
+            runs-on: windows-2022
           - target: win_arm
-            runs-on: windows-latest
+            runs-on: windows-2022
 
     runs-on: ${{ matrix.runs-on }}
     steps:
@@ -95,7 +97,7 @@ jobs:
   # Add this job to `Status checks that are required`
   status-check:
     name: Status check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: tests
     if: 'failure() || cancelled()'
     steps:
