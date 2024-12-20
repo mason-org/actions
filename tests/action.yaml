@@ -26,8 +26,8 @@ runs:
     - if: ${{ steps.prepare.outputs.setup_beam == 'true' }}
       uses: erlef/setup-beam@v1
       with:
-        otp-version: '24'
-        elixir-version: '1.14'
+        otp-version: '27'
+        elixir-version: '1.17'
         rebar3-version: '3'
 
     - if: ${{ steps.prepare.outputs.setup_nix == 'true' }}
