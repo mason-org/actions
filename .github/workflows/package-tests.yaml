@@ -91,6 +91,8 @@ jobs:
         with:
           packages: ${{ needs.package-targets.outputs.packages }}
           target: ${{ matrix.target }}
+          # This is currently only needed by r-languageserver due to (somewhat unclear) requirements in
+          # remotes::install_github().
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # This job is used for branch protection rule
