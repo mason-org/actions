@@ -62,7 +62,7 @@ runs:
       with:
         go-version: '>=1.17.0'
 
-    - if: ${{ runner.os == 'Windows' && steps.prepare.outputs.setup_ruby == 'true' }}
+    - if: ${{ steps.prepare.outputs.setup_ruby == 'true' }}
       uses: ruby/setup-ruby@v1
       with:
         ruby-version: '3.1'
