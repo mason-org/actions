@@ -9,6 +9,9 @@ inputs:
   packages:
     required: true
     description: The packages to test (space separated string).
+  GITHUB_TOKEN:
+    required: false
+    description: Currently only required for r-languageserver in the core registry.
 
 runs:
   using: composite
