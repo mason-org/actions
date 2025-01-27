@@ -40,6 +40,11 @@ runs:
       with:
         enable-stack: true
 
+    - if: ${{ steps.prepare.outputs.setup_php == 'true' }}
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+
     # ghcup is already available in the base images of non-macOS platforms. Also see https://github.com/haskell-actions/setup/pull/82
     - if: ${{ steps.prepare.outputs.setup_haskell == 'true' && runner.os == 'macOS' }}
       shell: bash

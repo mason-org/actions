@@ -160,12 +160,8 @@ function install-ghc {
     echo "setup_haskell=true" >> "$GITHUB_OUTPUT"
 }
 
-function install-composer {
-    if [[ $RUNNER_OS == macOS ]]; then
-        brew install composer
-        return 0
-    fi
-    return 0
+function install-php {
+    echo "setup_php=true" >> "$GITHUB_OUTPUT"
 }
 
 function install-python {
@@ -187,7 +183,7 @@ match install-opam "pkg:opam"
 match install-r "packages/r-languageserver/package.yaml"
 match install-ruby "pkg:gem"
 match install-zstd "packages/zls/package.yaml"
-match install-composer "pkg:composer"
+match install-php "pkg:composer"
 match install-python "pkg:pypi"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"
