@@ -57,4 +57,4 @@ runs:
       if: ${{ steps.package-targets.outputs.packages != '' }}
       shell: bash
       run: |
-        cat ${{ steps.package-targets.outputs.packages }} | yq -I0 -o json '.languages' | jq --slurp '. | flatten' | node "$GITHUB_ACTION_PATH/validate-languages.js"
+        cat packages/*/package.yaml | yq -I0 -o json '.languages' | jq --slurp '. | flatten' | node "$GITHUB_ACTION_PATH/validate-languages.js"
