@@ -1,28 +1,58 @@
+import fs from "node:fs/promises"
+import path from "node:path"
+import yaml from "yaml"
+
+async function getAllFiles(directoryPath) {
+    const files = []
+    const entries = await fs.readdir(directoryPath, { withFileTypes: true });
+    for (const file of entries) {
+        const fullPath = path.join(directoryPath, file.name);
+        if (file.isDirectory()) {
+            files.push(...await getAllFiles(fullPath));
+        } else {
+            files.push(fullPath)
+        }
+    }
+    return files
+}
+
 function logBadLanguage(badLanguage, suggestedLanguage) {
     console.error(
         `::error title=Invalid language usage::Found usage of language "${badLanguage}", use "${suggestedLanguage}" instead.`,
     );
 }
 
+const normalizeLang = (lang) => lang.toLowerCase().trim();
+
+const parseSpec = async (filePath) => {
+    const contents = await fs.readFile(filePath, "utf-8")
+    return yaml.parse(contents.toString())
+}
+
 async function main() {
-    process.stdin.resume();
-    process.stdin.setEncoding("utf8");
+    const allPackages = await getAllFiles("packages")
+    const changedPackages = process.env.PACKAGES.split(" ")
+    const languagesToValidate = new Set()
 
-    let input = "";
-    process.stdin.on("data", function (chunk) {
-        input += chunk;
-    });
-    await new Promise((resolve) => process.stdin.on("end", resolve));
+    for (const pkg of changedPackages) {
+        const spec = await parseSpec(pkg)
+        spec.languages.forEach(lang => languagesToValidate.add(normalizeLang(lang)))
+    }
 
-    const languages = JSON.parse(input);
+    const allLanguages = []
+
+    for (const pkg of allPackages) {
+        const spec = await parseSpec(pkg)
+        allLanguages.push(...spec.languages)
+    }
+
     const languageCount = {};
     const languagesNormalized = new Map();
 
-    for (const language of languages) {
-        const languageNormalized = language.toLowerCase().trim();
+    for (const language of allLanguages) {
         languageCount[language] = (languageCount[language] || 0) + 1;
         if (!languagesNormalized.has(language)) {
-            languagesNormalized.set(language, languageNormalized);
+            languagesNormalized.set(language, normalizeLang(language));
         }
     }
 
@@ -32,6 +62,8 @@ async function main() {
     const canonicalLanguages = new Map();
     const badLanguages = new Map();
     for (const [language, languageNormalized] of languagesNormalized.entries()) {
+        if (!languagesToValidate.has(languageNormalized)) continue
+
         if (canonicalLanguages.has(languageNormalized)) {
             const count1 = languageCount[language];
             const count2 = languageCount[canonicalLanguages.get(languageNormalized)];

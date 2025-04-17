@@ -1,0 +1,11 @@
+{
+  "scripts": {
+      "build": "esbuild validate-languages.js --platform=node --bundle --outfile=validate-languages.dist.js"
+  },
+  "dependencies": {
+    "yaml": "^2.7.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.2"
+  }
+}

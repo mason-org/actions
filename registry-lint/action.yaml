@@ -56,5 +56,6 @@ runs:
     - name: Validate languages
       if: ${{ steps.package-targets.outputs.packages != '' }}
       shell: bash
-      run: |
-        cat packages/*/package.yaml | yq -I0 -o json '.languages' | jq --slurp '. | flatten' | node "$GITHUB_ACTION_PATH/validate-languages.js"
+      run: node "$GITHUB_ACTION_PATH/validate-languages.dist.js"
+      env:
+        PACKAGES: ${{ steps.package-targets.outputs.packages }}
