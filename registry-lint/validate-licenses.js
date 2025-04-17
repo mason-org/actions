@@ -2,9 +2,9 @@ import { readFileSync } from "node:fs"
 import yaml from "yaml"
 import parse from "spdx-expression-parse"
 
-function logBadLicense(badLicense) {
+function logBadLicense(file, badLicense) {
     console.error(
-        `::error title=Invalid license usage::Found usage of invalid SPDX license expression: "${badLicense}".`,
+        `::error file=${file},title=Invalid license usage::Found usage of invalid SPDX license expression: "${badLicense}".`,
     );
 }
 
@@ -31,7 +31,7 @@ async function main() {
                 if (process.env.RUNNER_DEBUG) {
                     console.error(e)
                 }
-                logBadLicense(license)
+                logBadLicense(pkg, license)
                 hasErrors = true
             }
         }
