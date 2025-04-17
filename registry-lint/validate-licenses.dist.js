@@ -101,17 +101,17 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path2) {
-      const ctrl = callVisitor(key, node, visitor, path2);
+    function visit_(key, node, visitor, path) {
+      const ctrl = callVisitor(key, node, visitor, path);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path2, ctrl);
-        return visit_(key, ctrl, visitor, path2);
+        replaceNode(key, path, ctrl);
+        return visit_(key, ctrl, visitor, path);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path2 = Object.freeze(path2.concat(node));
+          path = Object.freeze(path.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = visit_(i, node.items[i], visitor, path2);
+            const ci = visit_(i, node.items[i], visitor, path);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -122,13 +122,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path2 = Object.freeze(path2.concat(node));
-          const ck = visit_("key", node.key, visitor, path2);
+          path = Object.freeze(path.concat(node));
+          const ck = visit_("key", node.key, visitor, path);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = visit_("value", node.value, visitor, path2);
+          const cv = visit_("value", node.value, visitor, path);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -149,17 +149,17 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path2) {
-      const ctrl = await callVisitor(key, node, visitor, path2);
+    async function visitAsync_(key, node, visitor, path) {
+      const ctrl = await callVisitor(key, node, visitor, path);
       if (identity.isNode(ctrl) || identity.isPair(ctrl)) {
-        replaceNode(key, path2, ctrl);
-        return visitAsync_(key, ctrl, visitor, path2);
+        replaceNode(key, path, ctrl);
+        return visitAsync_(key, ctrl, visitor, path);
       }
       if (typeof ctrl !== "symbol") {
         if (identity.isCollection(node)) {
-          path2 = Object.freeze(path2.concat(node));
+          path = Object.freeze(path.concat(node));
           for (let i = 0; i < node.items.length; ++i) {
-            const ci = await visitAsync_(i, node.items[i], visitor, path2);
+            const ci = await visitAsync_(i, node.items[i], visitor, path);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -170,13 +170,13 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path2 = Object.freeze(path2.concat(node));
-          const ck = await visitAsync_("key", node.key, visitor, path2);
+          path = Object.freeze(path.concat(node));
+          const ck = await visitAsync_("key", node.key, visitor, path);
           if (ck === BREAK)
             return BREAK;
           else if (ck === REMOVE)
             node.key = null;
-          const cv = await visitAsync_("value", node.value, visitor, path2);
+          const cv = await visitAsync_("value", node.value, visitor, path);
           if (cv === BREAK)
             return BREAK;
           else if (cv === REMOVE)
@@ -203,23 +203,23 @@ var require_visit = __commonJS({
       }
       return visitor;
     }
-    function callVisitor(key, node, visitor, path2) {
+    function callVisitor(key, node, visitor, path) {
       if (typeof visitor === "function")
-        return visitor(key, node, path2);
+        return visitor(key, node, path);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path2);
+        return visitor.Map?.(key, node, path);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path2);
+        return visitor.Seq?.(key, node, path);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path2);
+        return visitor.Pair?.(key, node, path);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path2);
+        return visitor.Scalar?.(key, node, path);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path2);
+        return visitor.Alias?.(key, node, path);
       return void 0;
     }
-    function replaceNode(key, path2, node) {
-      const parent = path2[path2.length - 1];
+    function replaceNode(key, path, node) {
+      const parent = path[path.length - 1];
       if (identity.isCollection(parent)) {
         parent.items[key] = node;
       } else if (identity.isPair(parent)) {
@@ -817,10 +817,10 @@ var require_Collection = __commonJS({
     var createNode = require_createNode();
     var identity = require_identity();
     var Node = require_Node();
-    function collectionFromPath(schema, path2, value) {
+    function collectionFromPath(schema, path, value) {
       let v = value;
-      for (let i = path2.length - 1; i >= 0; --i) {
-        const k = path2[i];
+      for (let i = path.length - 1; i >= 0; --i) {
+        const k = path[i];
         if (typeof k === "number" && Number.isInteger(k) && k >= 0) {
           const a = [];
           a[k] = v;
@@ -839,7 +839,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path2) => path2 == null || typeof path2 === "object" && !!path2[Symbol.iterator]().next().done;
+    var isEmptyPath = (path) => path == null || typeof path === "object" && !!path[Symbol.iterator]().next().done;
     var Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type);
@@ -869,11 +869,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path2, value) {
-        if (isEmptyPath(path2))
+      addIn(path, value) {
+        if (isEmptyPath(path))
           this.add(value);
         else {
-          const [key, ...rest] = path2;
+          const [key, ...rest] = path;
           const node = this.get(key, true);
           if (identity.isCollection(node))
             node.addIn(rest, value);
@@ -887,8 +887,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path2) {
-        const [key, ...rest] = path2;
+      deleteIn(path) {
+        const [key, ...rest] = path;
         if (rest.length === 0)
           return this.delete(key);
         const node = this.get(key, true);
@@ -902,8 +902,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path2, keepScalar) {
-        const [key, ...rest] = path2;
+      getIn(path, keepScalar) {
+        const [key, ...rest] = path;
         const node = this.get(key, true);
         if (rest.length === 0)
           return !keepScalar && identity.isScalar(node) ? node.value : node;
@@ -921,8 +921,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path2) {
-        const [key, ...rest] = path2;
+      hasIn(path) {
+        const [key, ...rest] = path;
         if (rest.length === 0)
           return this.has(key);
         const node = this.get(key, true);
@@ -932,8 +932,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path2, value) {
-        const [key, ...rest] = path2;
+      setIn(path, value) {
+        const [key, ...rest] = path;
         if (rest.length === 0) {
           this.set(key, value);
         } else {
@@ -3439,9 +3439,9 @@ var require_Document = __commonJS({
           this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path2, value) {
+      addIn(path, value) {
         if (assertCollection(this.contents))
-          this.contents.addIn(path2, value);
+          this.contents.addIn(path, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -3516,14 +3516,14 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path2) {
-        if (Collection.isEmptyPath(path2)) {
+      deleteIn(path) {
+        if (Collection.isEmptyPath(path)) {
           if (this.contents == null)
             return false;
           this.contents = null;
           return true;
         }
-        return assertCollection(this.contents) ? this.contents.deleteIn(path2) : false;
+        return assertCollection(this.contents) ? this.contents.deleteIn(path) : false;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -3538,10 +3538,10 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path2, keepScalar) {
-        if (Collection.isEmptyPath(path2))
+      getIn(path, keepScalar) {
+        if (Collection.isEmptyPath(path))
           return !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents;
-        return identity.isCollection(this.contents) ? this.contents.getIn(path2, keepScalar) : void 0;
+        return identity.isCollection(this.contents) ? this.contents.getIn(path, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -3552,10 +3552,10 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path2) {
-        if (Collection.isEmptyPath(path2))
+      hasIn(path) {
+        if (Collection.isEmptyPath(path))
           return this.contents !== void 0;
-        return identity.isCollection(this.contents) ? this.contents.hasIn(path2) : false;
+        return identity.isCollection(this.contents) ? this.contents.hasIn(path) : false;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -3572,13 +3572,13 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path2, value) {
-        if (Collection.isEmptyPath(path2)) {
+      setIn(path, value) {
+        if (Collection.isEmptyPath(path)) {
           this.contents = value;
         } else if (this.contents == null) {
-          this.contents = Collection.collectionFromPath(this.schema, Array.from(path2), value);
+          this.contents = Collection.collectionFromPath(this.schema, Array.from(path), value);
         } else if (assertCollection(this.contents)) {
-          this.contents.setIn(path2, value);
+          this.contents.setIn(path, value);
         }
       }
       /**
@@ -5533,9 +5533,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path2) => {
+    visit.itemAtPath = (cst, path) => {
       let item = cst;
-      for (const [field, index] of path2) {
+      for (const [field, index] of path) {
         const tok = item?.[field];
         if (tok && "items" in tok) {
           item = tok.items[index];
@@ -5544,23 +5544,23 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path2) => {
-      const parent = visit.itemAtPath(cst, path2.slice(0, -1));
-      const field = path2[path2.length - 1][0];
+    visit.parentCollection = (cst, path) => {
+      const parent = visit.itemAtPath(cst, path.slice(0, -1));
+      const field = path[path.length - 1][0];
       const coll = parent?.[field];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path2, item, visitor) {
-      let ctrl = visitor(item, path2);
+    function _visit(path, item, visitor) {
+      let ctrl = visitor(item, path);
       if (typeof ctrl === "symbol")
         return ctrl;
       for (const field of ["key", "value"]) {
         const token = item[field];
         if (token && "items" in token) {
           for (let i = 0; i < token.items.length; ++i) {
-            const ci = _visit(Object.freeze(path2.concat([[field, i]])), token.items[i], visitor);
+            const ci = _visit(Object.freeze(path.concat([[field, i]])), token.items[i], visitor);
             if (typeof ci === "number")
               i = ci - 1;
             else if (ci === BREAK)
@@ -5571,10 +5571,10 @@ var require_cst_visit = __commonJS({
             }
           }
           if (typeof ctrl === "function" && field === "key")
-            ctrl = ctrl(item, path2);
+            ctrl = ctrl(item, path);
         }
       }
-      return typeof ctrl === "function" ? ctrl(item, path2) : ctrl;
+      return typeof ctrl === "function" ? ctrl(item, path) : ctrl;
     }
     exports2.visit = visit;
   }
@@ -7208,7 +7208,7 @@ var require_public_api = __commonJS({
       }
       return doc;
     }
-    function parse(src, reviver, options) {
+    function parse2(src, reviver, options) {
       let _reviver = void 0;
       if (typeof reviver === "function") {
         _reviver = reviver;
@@ -7249,7 +7249,7 @@ var require_public_api = __commonJS({
         return value.toString(options);
       return new Document.Document(value, _replacer, options).toString(options);
     }
-    exports2.parse = parse;
+    exports2.parse = parse2;
     exports2.parseAllDocuments = parseAllDocuments;
     exports2.parseDocument = parseDocument;
     exports2.stringify = stringify;
@@ -7308,76 +7308,1034 @@ var require_dist = __commonJS({
   }
 });
 
-// validate-languages.js
-var import_node_fs = require("node:fs");
-var import_promises = require("node:fs/promises");
-var import_node_path = __toESM(require("node:path"));
-var import_yaml = __toESM(require_dist());
-async function getAllFiles(directoryPath) {
-  const files = [];
-  const entries = await (0, import_promises.readdir)(directoryPath, { withFileTypes: true });
-  for (const file of entries) {
-    const fullPath = import_node_path.default.join(directoryPath, file.name);
-    if (file.isDirectory()) {
-      files.push(...await getAllFiles(fullPath));
-    } else {
-      files.push(fullPath);
-    }
+// node_modules/spdx-license-ids/index.json
+var require_spdx_license_ids = __commonJS({
+  "node_modules/spdx-license-ids/index.json"(exports2, module2) {
+    module2.exports = [
+      "0BSD",
+      "3D-Slicer-1.0",
+      "AAL",
+      "ADSL",
+      "AFL-1.1",
+      "AFL-1.2",
+      "AFL-2.0",
+      "AFL-2.1",
+      "AFL-3.0",
+      "AGPL-1.0-only",
+      "AGPL-1.0-or-later",
+      "AGPL-3.0-only",
+      "AGPL-3.0-or-later",
+      "AMD-newlib",
+      "AMDPLPA",
+      "AML",
+      "AML-glslang",
+      "AMPAS",
+      "ANTLR-PD",
+      "ANTLR-PD-fallback",
+      "APAFML",
+      "APL-1.0",
+      "APSL-1.0",
+      "APSL-1.1",
+      "APSL-1.2",
+      "APSL-2.0",
+      "ASWF-Digital-Assets-1.0",
+      "ASWF-Digital-Assets-1.1",
+      "Abstyles",
+      "AdaCore-doc",
+      "Adobe-2006",
+      "Adobe-Display-PostScript",
+      "Adobe-Glyph",
+      "Adobe-Utopia",
+      "Afmparse",
+      "Aladdin",
+      "Apache-1.0",
+      "Apache-1.1",
+      "Apache-2.0",
+      "App-s2p",
+      "Arphic-1999",
+      "Artistic-1.0",
+      "Artistic-1.0-Perl",
+      "Artistic-1.0-cl8",
+      "Artistic-2.0",
+      "BSD-1-Clause",
+      "BSD-2-Clause",
+      "BSD-2-Clause-Darwin",
+      "BSD-2-Clause-Patent",
+      "BSD-2-Clause-Views",
+      "BSD-2-Clause-first-lines",
+      "BSD-3-Clause",
+      "BSD-3-Clause-Attribution",
+      "BSD-3-Clause-Clear",
+      "BSD-3-Clause-HP",
+      "BSD-3-Clause-LBNL",
+      "BSD-3-Clause-Modification",
+      "BSD-3-Clause-No-Military-License",
+      "BSD-3-Clause-No-Nuclear-License",
+      "BSD-3-Clause-No-Nuclear-License-2014",
+      "BSD-3-Clause-No-Nuclear-Warranty",
+      "BSD-3-Clause-Open-MPI",
+      "BSD-3-Clause-Sun",
+      "BSD-3-Clause-acpica",
+      "BSD-3-Clause-flex",
+      "BSD-4-Clause",
+      "BSD-4-Clause-Shortened",
+      "BSD-4-Clause-UC",
+      "BSD-4.3RENO",
+      "BSD-4.3TAHOE",
+      "BSD-Advertising-Acknowledgement",
+      "BSD-Attribution-HPND-disclaimer",
+      "BSD-Inferno-Nettverk",
+      "BSD-Protection",
+      "BSD-Source-Code",
+      "BSD-Source-beginning-file",
+      "BSD-Systemics",
+      "BSD-Systemics-W3Works",
+      "BSL-1.0",
+      "BUSL-1.1",
+      "Baekmuk",
+      "Bahyph",
+      "Barr",
+      "Beerware",
+      "BitTorrent-1.0",
+      "BitTorrent-1.1",
+      "Bitstream-Charter",
+      "Bitstream-Vera",
+      "BlueOak-1.0.0",
+      "Boehm-GC",
+      "Boehm-GC-without-fee",
+      "Borceux",
+      "Brian-Gladman-2-Clause",
+      "Brian-Gladman-3-Clause",
+      "C-UDA-1.0",
+      "CAL-1.0",
+      "CAL-1.0-Combined-Work-Exception",
+      "CATOSL-1.1",
+      "CC-BY-1.0",
+      "CC-BY-2.0",
+      "CC-BY-2.5",
+      "CC-BY-2.5-AU",
+      "CC-BY-3.0",
+      "CC-BY-3.0-AT",
+      "CC-BY-3.0-AU",
+      "CC-BY-3.0-DE",
+      "CC-BY-3.0-IGO",
+      "CC-BY-3.0-NL",
+      "CC-BY-3.0-US",
+      "CC-BY-4.0",
+      "CC-BY-NC-1.0",
+      "CC-BY-NC-2.0",
+      "CC-BY-NC-2.5",
+      "CC-BY-NC-3.0",
+      "CC-BY-NC-3.0-DE",
+      "CC-BY-NC-4.0",
+      "CC-BY-NC-ND-1.0",
+      "CC-BY-NC-ND-2.0",
+      "CC-BY-NC-ND-2.5",
+      "CC-BY-NC-ND-3.0",
+      "CC-BY-NC-ND-3.0-DE",
+      "CC-BY-NC-ND-3.0-IGO",
+      "CC-BY-NC-ND-4.0",
+      "CC-BY-NC-SA-1.0",
+      "CC-BY-NC-SA-2.0",
+      "CC-BY-NC-SA-2.0-DE",
+      "CC-BY-NC-SA-2.0-FR",
+      "CC-BY-NC-SA-2.0-UK",
+      "CC-BY-NC-SA-2.5",
+      "CC-BY-NC-SA-3.0",
+      "CC-BY-NC-SA-3.0-DE",
+      "CC-BY-NC-SA-3.0-IGO",
+      "CC-BY-NC-SA-4.0",
+      "CC-BY-ND-1.0",
+      "CC-BY-ND-2.0",
+      "CC-BY-ND-2.5",
+      "CC-BY-ND-3.0",
+      "CC-BY-ND-3.0-DE",
+      "CC-BY-ND-4.0",
+      "CC-BY-SA-1.0",
+      "CC-BY-SA-2.0",
+      "CC-BY-SA-2.0-UK",
+      "CC-BY-SA-2.1-JP",
+      "CC-BY-SA-2.5",
+      "CC-BY-SA-3.0",
+      "CC-BY-SA-3.0-AT",
+      "CC-BY-SA-3.0-DE",
+      "CC-BY-SA-3.0-IGO",
+      "CC-BY-SA-4.0",
+      "CC-PDDC",
+      "CC-PDM-1.0",
+      "CC-SA-1.0",
+      "CC0-1.0",
+      "CDDL-1.0",
+      "CDDL-1.1",
+      "CDL-1.0",
+      "CDLA-Permissive-1.0",
+      "CDLA-Permissive-2.0",
+      "CDLA-Sharing-1.0",
+      "CECILL-1.0",
+      "CECILL-1.1",
+      "CECILL-2.0",
+      "CECILL-2.1",
+      "CECILL-B",
+      "CECILL-C",
+      "CERN-OHL-1.1",
+      "CERN-OHL-1.2",
+      "CERN-OHL-P-2.0",
+      "CERN-OHL-S-2.0",
+      "CERN-OHL-W-2.0",
+      "CFITSIO",
+      "CMU-Mach",
+      "CMU-Mach-nodoc",
+      "CNRI-Jython",
+      "CNRI-Python",
+      "CNRI-Python-GPL-Compatible",
+      "COIL-1.0",
+      "CPAL-1.0",
+      "CPL-1.0",
+      "CPOL-1.02",
+      "CUA-OPL-1.0",
+      "Caldera",
+      "Caldera-no-preamble",
+      "Catharon",
+      "ClArtistic",
+      "Clips",
+      "Community-Spec-1.0",
+      "Condor-1.1",
+      "Cornell-Lossless-JPEG",
+      "Cronyx",
+      "Crossword",
+      "CrystalStacker",
+      "Cube",
+      "D-FSL-1.0",
+      "DEC-3-Clause",
+      "DL-DE-BY-2.0",
+      "DL-DE-ZERO-2.0",
+      "DOC",
+      "DRL-1.0",
+      "DRL-1.1",
+      "DSDP",
+      "DocBook-Schema",
+      "DocBook-Stylesheet",
+      "DocBook-XML",
+      "Dotseqn",
+      "ECL-1.0",
+      "ECL-2.0",
+      "EFL-1.0",
+      "EFL-2.0",
+      "EPICS",
+      "EPL-1.0",
+      "EPL-2.0",
+      "EUDatagrid",
+      "EUPL-1.0",
+      "EUPL-1.1",
+      "EUPL-1.2",
+      "Elastic-2.0",
+      "Entessa",
+      "ErlPL-1.1",
+      "Eurosym",
+      "FBM",
+      "FDK-AAC",
+      "FSFAP",
+      "FSFAP-no-warranty-disclaimer",
+      "FSFUL",
+      "FSFULLR",
+      "FSFULLRWD",
+      "FTL",
+      "Fair",
+      "Ferguson-Twofish",
+      "Frameworx-1.0",
+      "FreeBSD-DOC",
+      "FreeImage",
+      "Furuseth",
+      "GCR-docs",
+      "GD",
+      "GFDL-1.1-invariants-only",
+      "GFDL-1.1-invariants-or-later",
+      "GFDL-1.1-no-invariants-only",
+      "GFDL-1.1-no-invariants-or-later",
+      "GFDL-1.1-only",
+      "GFDL-1.1-or-later",
+      "GFDL-1.2-invariants-only",
+      "GFDL-1.2-invariants-or-later",
+      "GFDL-1.2-no-invariants-only",
+      "GFDL-1.2-no-invariants-or-later",
+      "GFDL-1.2-only",
+      "GFDL-1.2-or-later",
+      "GFDL-1.3-invariants-only",
+      "GFDL-1.3-invariants-or-later",
+      "GFDL-1.3-no-invariants-only",
+      "GFDL-1.3-no-invariants-or-later",
+      "GFDL-1.3-only",
+      "GFDL-1.3-or-later",
+      "GL2PS",
+      "GLWTPL",
+      "GPL-1.0-only",
+      "GPL-1.0-or-later",
+      "GPL-2.0-only",
+      "GPL-2.0-or-later",
+      "GPL-3.0-only",
+      "GPL-3.0-or-later",
+      "Giftware",
+      "Glide",
+      "Glulxe",
+      "Graphics-Gems",
+      "Gutmann",
+      "HIDAPI",
+      "HP-1986",
+      "HP-1989",
+      "HPND",
+      "HPND-DEC",
+      "HPND-Fenneberg-Livingston",
+      "HPND-INRIA-IMAG",
+      "HPND-Intel",
+      "HPND-Kevlin-Henney",
+      "HPND-MIT-disclaimer",
+      "HPND-Markus-Kuhn",
+      "HPND-Netrek",
+      "HPND-Pbmplus",
+      "HPND-UC",
+      "HPND-UC-export-US",
+      "HPND-doc",
+      "HPND-doc-sell",
+      "HPND-export-US",
+      "HPND-export-US-acknowledgement",
+      "HPND-export-US-modify",
+      "HPND-export2-US",
+      "HPND-merchantability-variant",
+      "HPND-sell-MIT-disclaimer-xserver",
+      "HPND-sell-regexpr",
+      "HPND-sell-variant",
+      "HPND-sell-variant-MIT-disclaimer",
+      "HPND-sell-variant-MIT-disclaimer-rev",
+      "HTMLTIDY",
+      "HaskellReport",
+      "Hippocratic-2.1",
+      "IBM-pibs",
+      "ICU",
+      "IEC-Code-Components-EULA",
+      "IJG",
+      "IJG-short",
+      "IPA",
+      "IPL-1.0",
+      "ISC",
+      "ISC-Veillard",
+      "ImageMagick",
+      "Imlib2",
+      "Info-ZIP",
+      "Inner-Net-2.0",
+      "InnoSetup",
+      "Intel",
+      "Intel-ACPI",
+      "Interbase-1.0",
+      "JPL-image",
+      "JPNIC",
+      "JSON",
+      "Jam",
+      "JasPer-2.0",
+      "Kastrup",
+      "Kazlib",
+      "Knuth-CTAN",
+      "LAL-1.2",
+      "LAL-1.3",
+      "LGPL-2.0-only",
+      "LGPL-2.0-or-later",
+      "LGPL-2.1-only",
+      "LGPL-2.1-or-later",
+      "LGPL-3.0-only",
+      "LGPL-3.0-or-later",
+      "LGPLLR",
+      "LOOP",
+      "LPD-document",
+      "LPL-1.0",
+      "LPL-1.02",
+      "LPPL-1.0",
+      "LPPL-1.1",
+      "LPPL-1.2",
+      "LPPL-1.3a",
+      "LPPL-1.3c",
+      "LZMA-SDK-9.11-to-9.20",
+      "LZMA-SDK-9.22",
+      "Latex2e",
+      "Latex2e-translated-notice",
+      "Leptonica",
+      "LiLiQ-P-1.1",
+      "LiLiQ-R-1.1",
+      "LiLiQ-Rplus-1.1",
+      "Libpng",
+      "Linux-OpenIB",
+      "Linux-man-pages-1-para",
+      "Linux-man-pages-copyleft",
+      "Linux-man-pages-copyleft-2-para",
+      "Linux-man-pages-copyleft-var",
+      "Lucida-Bitmap-Fonts",
+      "MIPS",
+      "MIT",
+      "MIT-0",
+      "MIT-CMU",
+      "MIT-Click",
+      "MIT-Festival",
+      "MIT-Khronos-old",
+      "MIT-Modern-Variant",
+      "MIT-Wu",
+      "MIT-advertising",
+      "MIT-enna",
+      "MIT-feh",
+      "MIT-open-group",
+      "MIT-testregex",
+      "MITNFA",
+      "MMIXware",
+      "MPEG-SSG",
+      "MPL-1.0",
+      "MPL-1.1",
+      "MPL-2.0",
+      "MPL-2.0-no-copyleft-exception",
+      "MS-LPL",
+      "MS-PL",
+      "MS-RL",
+      "MTLL",
+      "Mackerras-3-Clause",
+      "Mackerras-3-Clause-acknowledgment",
+      "MakeIndex",
+      "Martin-Birgmeier",
+      "McPhee-slideshow",
+      "Minpack",
+      "MirOS",
+      "Motosoto",
+      "MulanPSL-1.0",
+      "MulanPSL-2.0",
+      "Multics",
+      "Mup",
+      "NAIST-2003",
+      "NASA-1.3",
+      "NBPL-1.0",
+      "NCBI-PD",
+      "NCGL-UK-2.0",
+      "NCL",
+      "NCSA",
+      "NGPL",
+      "NICTA-1.0",
+      "NIST-PD",
+      "NIST-PD-fallback",
+      "NIST-Software",
+      "NLOD-1.0",
+      "NLOD-2.0",
+      "NLPL",
+      "NOSL",
+      "NPL-1.0",
+      "NPL-1.1",
+      "NPOSL-3.0",
+      "NRL",
+      "NTP",
+      "NTP-0",
+      "Naumen",
+      "NetCDF",
+      "Newsletr",
+      "Nokia",
+      "Noweb",
+      "O-UDA-1.0",
+      "OAR",
+      "OCCT-PL",
+      "OCLC-2.0",
+      "ODC-By-1.0",
+      "ODbL-1.0",
+      "OFFIS",
+      "OFL-1.0",
+      "OFL-1.0-RFN",
+      "OFL-1.0-no-RFN",
+      "OFL-1.1",
+      "OFL-1.1-RFN",
+      "OFL-1.1-no-RFN",
+      "OGC-1.0",
+      "OGDL-Taiwan-1.0",
+      "OGL-Canada-2.0",
+      "OGL-UK-1.0",
+      "OGL-UK-2.0",
+      "OGL-UK-3.0",
+      "OGTSL",
+      "OLDAP-1.1",
+      "OLDAP-1.2",
+      "OLDAP-1.3",
+      "OLDAP-1.4",
+      "OLDAP-2.0",
+      "OLDAP-2.0.1",
+      "OLDAP-2.1",
+      "OLDAP-2.2",
+      "OLDAP-2.2.1",
+      "OLDAP-2.2.2",
+      "OLDAP-2.3",
+      "OLDAP-2.4",
+      "OLDAP-2.5",
+      "OLDAP-2.6",
+      "OLDAP-2.7",
+      "OLDAP-2.8",
+      "OLFL-1.3",
+      "OML",
+      "OPL-1.0",
+      "OPL-UK-3.0",
+      "OPUBL-1.0",
+      "OSET-PL-2.1",
+      "OSL-1.0",
+      "OSL-1.1",
+      "OSL-2.0",
+      "OSL-2.1",
+      "OSL-3.0",
+      "OpenPBS-2.3",
+      "OpenSSL",
+      "OpenSSL-standalone",
+      "OpenVision",
+      "PADL",
+      "PDDL-1.0",
+      "PHP-3.0",
+      "PHP-3.01",
+      "PPL",
+      "PSF-2.0",
+      "Parity-6.0.0",
+      "Parity-7.0.0",
+      "Pixar",
+      "Plexus",
+      "PolyForm-Noncommercial-1.0.0",
+      "PolyForm-Small-Business-1.0.0",
+      "PostgreSQL",
+      "Python-2.0",
+      "Python-2.0.1",
+      "QPL-1.0",
+      "QPL-1.0-INRIA-2004",
+      "Qhull",
+      "RHeCos-1.1",
+      "RPL-1.1",
+      "RPL-1.5",
+      "RPSL-1.0",
+      "RSA-MD",
+      "RSCPL",
+      "Rdisc",
+      "Ruby",
+      "Ruby-pty",
+      "SAX-PD",
+      "SAX-PD-2.0",
+      "SCEA",
+      "SGI-B-1.0",
+      "SGI-B-1.1",
+      "SGI-B-2.0",
+      "SGI-OpenGL",
+      "SGP4",
+      "SHL-0.5",
+      "SHL-0.51",
+      "SISSL",
+      "SISSL-1.2",
+      "SL",
+      "SMAIL-GPL",
+      "SMLNJ",
+      "SMPPL",
+      "SNIA",
+      "SPL-1.0",
+      "SSH-OpenSSH",
+      "SSH-short",
+      "SSLeay-standalone",
+      "SSPL-1.0",
+      "SWL",
+      "Saxpath",
+      "SchemeReport",
+      "Sendmail",
+      "Sendmail-8.23",
+      "Sendmail-Open-Source-1.1",
+      "SimPL-2.0",
+      "Sleepycat",
+      "Soundex",
+      "Spencer-86",
+      "Spencer-94",
+      "Spencer-99",
+      "SugarCRM-1.1.3",
+      "Sun-PPP",
+      "Sun-PPP-2000",
+      "SunPro",
+      "Symlinks",
+      "TAPR-OHL-1.0",
+      "TCL",
+      "TCP-wrappers",
+      "TGPPL-1.0",
+      "TMate",
+      "TORQUE-1.1",
+      "TOSL",
+      "TPDL",
+      "TPL-1.0",
+      "TTWL",
+      "TTYP0",
+      "TU-Berlin-1.0",
+      "TU-Berlin-2.0",
+      "TermReadKey",
+      "ThirdEye",
+      "TrustedQSL",
+      "UCAR",
+      "UCL-1.0",
+      "UMich-Merit",
+      "UPL-1.0",
+      "URT-RLE",
+      "Ubuntu-font-1.0",
+      "Unicode-3.0",
+      "Unicode-DFS-2015",
+      "Unicode-DFS-2016",
+      "Unicode-TOU",
+      "UnixCrypt",
+      "Unlicense",
+      "VOSTROM",
+      "VSL-1.0",
+      "Vim",
+      "W3C",
+      "W3C-19980720",
+      "W3C-20150513",
+      "WTFPL",
+      "Watcom-1.0",
+      "Widget-Workshop",
+      "Wsuipa",
+      "X11",
+      "X11-distribute-modifications-variant",
+      "X11-swapped",
+      "XFree86-1.1",
+      "XSkat",
+      "Xdebug-1.03",
+      "Xerox",
+      "Xfig",
+      "Xnet",
+      "YPL-1.0",
+      "YPL-1.1",
+      "ZPL-1.1",
+      "ZPL-2.0",
+      "ZPL-2.1",
+      "Zed",
+      "Zeeff",
+      "Zend-2.0",
+      "Zimbra-1.3",
+      "Zimbra-1.4",
+      "Zlib",
+      "any-OSI",
+      "any-OSI-perl-modules",
+      "bcrypt-Solar-Designer",
+      "blessing",
+      "bzip2-1.0.6",
+      "check-cvs",
+      "checkmk",
+      "copyleft-next-0.3.0",
+      "copyleft-next-0.3.1",
+      "curl",
+      "cve-tou",
+      "diffmark",
+      "dtoa",
+      "dvipdfm",
+      "eGenix",
+      "etalab-2.0",
+      "fwlw",
+      "gSOAP-1.3b",
+      "generic-xts",
+      "gnuplot",
+      "gtkbook",
+      "hdparm",
+      "iMatix",
+      "libpng-2.0",
+      "libselinux-1.0",
+      "libtiff",
+      "libutil-David-Nugent",
+      "lsof",
+      "magaz",
+      "mailprio",
+      "metamail",
+      "mpi-permissive",
+      "mpich2",
+      "mplus",
+      "pkgconf",
+      "pnmstitch",
+      "psfrag",
+      "psutils",
+      "python-ldap",
+      "radvd",
+      "snprintf",
+      "softSurfer",
+      "ssh-keyscan",
+      "swrule",
+      "threeparttable",
+      "ulem",
+      "w3m",
+      "wwl",
+      "xinetd",
+      "xkeyboard-config-Zinoviev",
+      "xlock",
+      "xpp",
+      "xzoom",
+      "zlib-acknowledgement"
+    ];
   }
-  return files;
-}
-function logBadLanguage(badLanguage, suggestedLanguage) {
+});
+
+// node_modules/spdx-license-ids/deprecated.json
+var require_deprecated = __commonJS({
+  "node_modules/spdx-license-ids/deprecated.json"(exports2, module2) {
+    module2.exports = [
+      "AGPL-1.0",
+      "AGPL-3.0",
+      "BSD-2-Clause-FreeBSD",
+      "BSD-2-Clause-NetBSD",
+      "GFDL-1.1",
+      "GFDL-1.2",
+      "GFDL-1.3",
+      "GPL-1.0",
+      "GPL-2.0",
+      "GPL-2.0-with-GCC-exception",
+      "GPL-2.0-with-autoconf-exception",
+      "GPL-2.0-with-bison-exception",
+      "GPL-2.0-with-classpath-exception",
+      "GPL-2.0-with-font-exception",
+      "GPL-3.0",
+      "GPL-3.0-with-GCC-exception",
+      "GPL-3.0-with-autoconf-exception",
+      "LGPL-2.0",
+      "LGPL-2.1",
+      "LGPL-3.0",
+      "Net-SNMP",
+      "Nunit",
+      "StandardML-NJ",
+      "bzip2-1.0.5",
+      "eCos-2.0",
+      "wxWindows"
+    ];
+  }
+});
+
+// node_modules/spdx-exceptions/index.json
+var require_spdx_exceptions = __commonJS({
+  "node_modules/spdx-exceptions/index.json"(exports2, module2) {
+    module2.exports = [
+      "389-exception",
+      "Asterisk-exception",
+      "Autoconf-exception-2.0",
+      "Autoconf-exception-3.0",
+      "Autoconf-exception-generic",
+      "Autoconf-exception-generic-3.0",
+      "Autoconf-exception-macro",
+      "Bison-exception-1.24",
+      "Bison-exception-2.2",
+      "Bootloader-exception",
+      "Classpath-exception-2.0",
+      "CLISP-exception-2.0",
+      "cryptsetup-OpenSSL-exception",
+      "DigiRule-FOSS-exception",
+      "eCos-exception-2.0",
+      "Fawkes-Runtime-exception",
+      "FLTK-exception",
+      "fmt-exception",
+      "Font-exception-2.0",
+      "freertos-exception-2.0",
+      "GCC-exception-2.0",
+      "GCC-exception-2.0-note",
+      "GCC-exception-3.1",
+      "Gmsh-exception",
+      "GNAT-exception",
+      "GNOME-examples-exception",
+      "GNU-compiler-exception",
+      "gnu-javamail-exception",
+      "GPL-3.0-interface-exception",
+      "GPL-3.0-linking-exception",
+      "GPL-3.0-linking-source-exception",
+      "GPL-CC-1.0",
+      "GStreamer-exception-2005",
+      "GStreamer-exception-2008",
+      "i2p-gpl-java-exception",
+      "KiCad-libraries-exception",
+      "LGPL-3.0-linking-exception",
+      "libpri-OpenH323-exception",
+      "Libtool-exception",
+      "Linux-syscall-note",
+      "LLGPL",
+      "LLVM-exception",
+      "LZMA-exception",
+      "mif-exception",
+      "OCaml-LGPL-linking-exception",
+      "OCCT-exception-1.0",
+      "OpenJDK-assembly-exception-1.0",
+      "openvpn-openssl-exception",
+      "PS-or-PDF-font-exception-20170817",
+      "QPL-1.0-INRIA-2004-exception",
+      "Qt-GPL-exception-1.0",
+      "Qt-LGPL-exception-1.1",
+      "Qwt-exception-1.0",
+      "SANE-exception",
+      "SHL-2.0",
+      "SHL-2.1",
+      "stunnel-exception",
+      "SWI-exception",
+      "Swift-exception",
+      "Texinfo-exception",
+      "u-boot-exception-2.0",
+      "UBDL-exception",
+      "Universal-FOSS-exception-1.0",
+      "vsftpd-openssl-exception",
+      "WxWindows-exception-3.1",
+      "x11vnc-openssl-exception"
+    ];
+  }
+});
+
+// node_modules/spdx-expression-parse/scan.js
+var require_scan = __commonJS({
+  "node_modules/spdx-expression-parse/scan.js"(exports2, module2) {
+    "use strict";
+    var licenses = [].concat(require_spdx_license_ids()).concat(require_deprecated());
+    var exceptions = require_spdx_exceptions();
+    module2.exports = function(source) {
+      var index = 0;
+      function hasMore() {
+        return index < source.length;
+      }
+      function read(value) {
+        if (value instanceof RegExp) {
+          var chars = source.slice(index);
+          var match = chars.match(value);
+          if (match) {
+            index += match[0].length;
+            return match[0];
+          }
+        } else {
+          if (source.indexOf(value, index) === index) {
+            index += value.length;
+            return value;
+          }
+        }
+      }
+      function skipWhitespace() {
+        read(/[ ]*/);
+      }
+      function operator() {
+        var string;
+        var possibilities = [/^WITH/i, /^AND/i, /^OR/i, "(", ")", ":", "+"];
+        for (var i = 0; i < possibilities.length; i++) {
+          string = read(possibilities[i]);
+          if (string) {
+            break;
+          }
+        }
+        if (string === "+" && index > 1 && source[index - 2] === " ") {
+          throw new Error("Space before `+`");
+        }
+        return string && {
+          type: "OPERATOR",
+          string: string.toUpperCase()
+        };
+      }
+      function idstring() {
+        return read(/[A-Za-z0-9-.]+/);
+      }
+      function expectIdstring() {
+        var string = idstring();
+        if (!string) {
+          throw new Error("Expected idstring at offset " + index);
+        }
+        return string;
+      }
+      function documentRef() {
+        if (read("DocumentRef-")) {
+          var string = expectIdstring();
+          return { type: "DOCUMENTREF", string };
+        }
+      }
+      function licenseRef() {
+        if (read("LicenseRef-")) {
+          var string = expectIdstring();
+          return { type: "LICENSEREF", string };
+        }
+      }
+      function identifier() {
+        var begin = index;
+        var string = idstring();
+        if (licenses.indexOf(string) !== -1) {
+          return {
+            type: "LICENSE",
+            string
+          };
+        } else if (exceptions.indexOf(string) !== -1) {
+          return {
+            type: "EXCEPTION",
+            string
+          };
+        }
+        index = begin;
+      }
+      function parseToken() {
+        return operator() || documentRef() || licenseRef() || identifier();
+      }
+      var tokens = [];
+      while (hasMore()) {
+        skipWhitespace();
+        if (!hasMore()) {
+          break;
+        }
+        var token = parseToken();
+        if (!token) {
+          throw new Error("Unexpected `" + source[index] + "` at offset " + index);
+        }
+        tokens.push(token);
+      }
+      return tokens;
+    };
+  }
+});
+
+// node_modules/spdx-expression-parse/parse.js
+var require_parse = __commonJS({
+  "node_modules/spdx-expression-parse/parse.js"(exports2, module2) {
+    "use strict";
+    module2.exports = function(tokens) {
+      var index = 0;
+      function hasMore() {
+        return index < tokens.length;
+      }
+      function token() {
+        return hasMore() ? tokens[index] : null;
+      }
+      function next() {
+        if (!hasMore()) {
+          throw new Error();
+        }
+        index++;
+      }
+      function parseOperator(operator) {
+        var t = token();
+        if (t && t.type === "OPERATOR" && operator === t.string) {
+          next();
+          return t.string;
+        }
+      }
+      function parseWith() {
+        if (parseOperator("WITH")) {
+          var t = token();
+          if (t && t.type === "EXCEPTION") {
+            next();
+            return t.string;
+          }
+          throw new Error("Expected exception after `WITH`");
+        }
+      }
+      function parseLicenseRef() {
+        var begin = index;
+        var string = "";
+        var t = token();
+        if (t.type === "DOCUMENTREF") {
+          next();
+          string += "DocumentRef-" + t.string + ":";
+          if (!parseOperator(":")) {
+            throw new Error("Expected `:` after `DocumentRef-...`");
+          }
+        }
+        t = token();
+        if (t.type === "LICENSEREF") {
+          next();
+          string += "LicenseRef-" + t.string;
+          return { license: string };
+        }
+        index = begin;
+      }
+      function parseLicense() {
+        var t = token();
+        if (t && t.type === "LICENSE") {
+          next();
+          var node2 = { license: t.string };
+          if (parseOperator("+")) {
+            node2.plus = true;
+          }
+          var exception = parseWith();
+          if (exception) {
+            node2.exception = exception;
+          }
+          return node2;
+        }
+      }
+      function parseParenthesizedExpression() {
+        var left = parseOperator("(");
+        if (!left) {
+          return;
+        }
+        var expr = parseExpression();
+        if (!parseOperator(")")) {
+          throw new Error("Expected `)`");
+        }
+        return expr;
+      }
+      function parseAtom() {
+        return parseParenthesizedExpression() || parseLicenseRef() || parseLicense();
+      }
+      function makeBinaryOpParser(operator, nextParser) {
+        return function parseBinaryOp() {
+          var left = nextParser();
+          if (!left) {
+            return;
+          }
+          if (!parseOperator(operator)) {
+            return left;
+          }
+          var right = parseBinaryOp();
+          if (!right) {
+            throw new Error("Expected expression");
+          }
+          return {
+            left,
+            conjunction: operator.toLowerCase(),
+            right
+          };
+        };
+      }
+      var parseAnd = makeBinaryOpParser("AND", parseAtom);
+      var parseExpression = makeBinaryOpParser("OR", parseAnd);
+      var node = parseExpression();
+      if (!node || hasMore()) {
+        throw new Error("Syntax error");
+      }
+      return node;
+    };
+  }
+});
+
+// node_modules/spdx-expression-parse/index.js
+var require_spdx_expression_parse = __commonJS({
+  "node_modules/spdx-expression-parse/index.js"(exports2, module2) {
+    "use strict";
+    var scan = require_scan();
+    var parse2 = require_parse();
+    module2.exports = function(source) {
+      return parse2(scan(source));
+    };
+  }
+});
+
+// validate-licenses.js
+var import_node_fs = require("node:fs");
+var import_yaml = __toESM(require_dist());
+var import_spdx_expression_parse = __toESM(require_spdx_expression_parse());
+function logBadLicense(badLicense) {
   console.error(
-    `::error title=Invalid language usage::Found usage of language "${badLanguage}", use "${suggestedLanguage}" instead.`
+    `::error title=Invalid license usage::Found usage of invalid SPDX license expression: "${badLicense}".`
   );
 }
-var normalizeLang = (lang) => lang.toLowerCase().trim();
 var parseSpec = (filePath) => {
   const contents = (0, import_node_fs.readFileSync)(filePath, { encoding: "utf-8" });
   return import_yaml.default.parse(contents);
 };
 async function main() {
-  const allPackages = await getAllFiles("packages");
   const changedPackages = process.env.PACKAGES.split(" ");
-  const languagesToValidate = /* @__PURE__ */ new Set();
+  let hasErrors = false;
   for (const pkg of changedPackages) {
     const spec = parseSpec(pkg);
-    spec.languages.forEach((lang) => languagesToValidate.add(normalizeLang(lang)));
-  }
-  const allLanguages = [];
-  for (const pkg of allPackages) {
-    const spec = parseSpec(pkg);
-    allLanguages.push(...spec.languages);
-  }
-  const languageCount = {};
-  const languagesNormalized = /* @__PURE__ */ new Map();
-  for (const language of allLanguages) {
-    languageCount[language] = (languageCount[language] || 0) + 1;
-    if (!languagesNormalized.has(language)) {
-      languagesNormalized.set(language, normalizeLang(language));
-    }
-  }
-  const canonicalLanguages = /* @__PURE__ */ new Map();
-  const badLanguages = /* @__PURE__ */ new Map();
-  for (const [language, languageNormalized] of languagesNormalized.entries()) {
-    if (!languagesToValidate.has(languageNormalized)) continue;
-    if (canonicalLanguages.has(languageNormalized)) {
-      const count1 = languageCount[language];
-      const count2 = languageCount[canonicalLanguages.get(languageNormalized)];
-      if (count1 > count2) {
-        badLanguages.set(canonicalLanguages.get(languageNormalized), language);
-        canonicalLanguages.set(languageNormalized, language);
-      } else {
-        badLanguages.set(language, canonicalLanguages.get(languageNormalized));
+    for (const license of spec.licenses) {
+      try {
+        if (process.env.RUNNER_DEBUG) {
+          console.log("Parsing license", license, "for", pkg);
+        }
+        (0, import_spdx_expression_parse.default)(license);
+      } catch (e) {
+        if (process.env.RUNNER_DEBUG) {
+          console.error(e);
+        }
+        logBadLicense(license);
+        hasErrors = true;
       }
-    } else {
-      canonicalLanguages.set(languageNormalized, language);
     }
   }
-  if (badLanguages.size > 0) {
-    for (const [badLanguage, suggestedLanguage] of badLanguages.entries()) {
-      logBadLanguage(badLanguage, suggestedLanguage);
-    }
+  if (hasErrors) {
     process.exit(1);
   }
 }

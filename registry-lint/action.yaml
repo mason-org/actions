@@ -50,12 +50,23 @@ runs:
       env:
         PACKAGES: ${{ steps.package-targets.outputs.packages }}
 
-    - name: Install yq
-      uses: mason-org/actions/setup-yq@v1
+    - name: Validate misc errors in package definition
+      if: ${{ steps.package-targets.outputs.packages != '' }}
+      shell: bash
+      run: $GITHUB_ACTION_PATH/validate-misc.sh
+      env:
+        PACKAGES: ${{ steps.package-targets.outputs.packages }}
 
     - name: Validate languages
       if: ${{ steps.package-targets.outputs.packages != '' }}
       shell: bash
       run: node "$GITHUB_ACTION_PATH/validate-languages.dist.js"
+      env:
+        PACKAGES: ${{ steps.package-targets.outputs.packages }}
+
+    - name: Validate licenses
+      if: ${{ steps.package-targets.outputs.packages != '' }}
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/validate-licenses.dist.js"
       env:
         PACKAGES: ${{ steps.package-targets.outputs.packages }}
