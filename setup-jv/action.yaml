@@ -1,0 +1,18 @@
+---
+name: Setup jv
+description: Action for setting up jv(JSONSchema Validator). Only supports Linux x64.
+
+inputs:
+  version:
+    description: jv version.
+    required: false
+    default: v6.0.1
+
+runs:
+  using: composite
+  steps:
+    - name: Install jv
+      shell: bash
+      run: |
+        sudo curl -fL "https://github.com/santhosh-tekuri/jsonschema/releases/download/${{ inputs.version }}/jv-${{ inputs.version }}-linux-amd64.tar.gz" | sudo tar -C /usr/local/bin -xzf -
+        sudo chmod +x /usr/local/bin/jv

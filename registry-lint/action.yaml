@@ -43,6 +43,9 @@ runs:
           echo "packages=${{ steps.changed-packages.outputs.all_changed_files }}" >> "$GITHUB_OUTPUT"
         fi
 
+    - name: Install jv
+      uses: mason-org/actions/setup-jv@v1
+
     - name: Validate schema conformance
       if: ${{ steps.package-targets.outputs.packages != '' }}
       shell: bash
