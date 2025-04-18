@@ -1,8 +1,11 @@
 {
   "scripts": {
-      "build": "esbuild validate-languages.js --platform=node --bundle --outfile=validate-languages.dist.js"
+    "build": "npm run build:validate-languages && npm run build:validate-licenses",
+    "build:validate-languages": "esbuild validate-languages.js --platform=node --bundle --outfile=validate-languages.dist.js",
+    "build:validate-licenses": "esbuild validate-licenses.js --platform=node --bundle --outfile=validate-licenses.dist.js"
   },
   "dependencies": {
+    "spdx-expression-parse": "^4.0.0",
     "yaml": "^2.7.1"
   },
   "devDependencies": {

@@ -1,10 +1,11 @@
-import fs from "node:fs/promises"
+import { readFileSync } from "node:fs"
+import { readdir } from "node:fs/promises"
 import path from "node:path"
 import yaml from "yaml"
 
 async function getAllFiles(directoryPath) {
     const files = []
-    const entries = await fs.readdir(directoryPath, { withFileTypes: true });
+    const entries = await readdir(directoryPath, { withFileTypes: true });
     for (const file of entries) {
         const fullPath = path.join(directoryPath, file.name);
         if (file.isDirectory()) {
@@ -24,9 +25,9 @@ function logBadLanguage(badLanguage, suggestedLanguage) {
 
 const normalizeLang = (lang) => lang.toLowerCase().trim();
 
-const parseSpec = async (filePath) => {
-    const contents = await fs.readFile(filePath, "utf-8")
-    return yaml.parse(contents.toString())
+const parseSpec = (filePath) => {
+    const contents = readFileSync(filePath, { encoding: "utf-8" })
+    return yaml.parse(contents)
 }
 
 async function main() {
@@ -35,14 +36,14 @@ async function main() {
     const languagesToValidate = new Set()
 
     for (const pkg of changedPackages) {
-        const spec = await parseSpec(pkg)
+        const spec = parseSpec(pkg)
         spec.languages.forEach(lang => languagesToValidate.add(normalizeLang(lang)))
     }
 
     const allLanguages = []
 
     for (const pkg of allPackages) {
-        const spec = await parseSpec(pkg)
+        const spec = parseSpec(pkg)
         allLanguages.push(...spec.languages)
     }
 
