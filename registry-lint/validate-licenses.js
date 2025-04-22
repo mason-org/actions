@@ -21,6 +21,7 @@ async function main() {
     for (const pkg of changedPackages) {
         const spec = parseSpec(pkg)
         for (const license of spec.licenses) {
+            if (license === "proprietary") continue
             try {
                 if (process.env.RUNNER_DEBUG) {
                     console.log("Parsing license", license, "for", pkg)
