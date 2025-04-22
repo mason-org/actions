@@ -8306,9 +8306,9 @@ var require_spdx_expression_parse = __commonJS({
 var import_node_fs = require("node:fs");
 var import_yaml = __toESM(require_dist());
 var import_spdx_expression_parse = __toESM(require_spdx_expression_parse());
-function logBadLicense(badLicense) {
+function logBadLicense(file, badLicense) {
   console.error(
-    `::error title=Invalid license usage::Found usage of invalid SPDX license expression: "${badLicense}".`
+    `::error file=${file},title=Invalid license usage::Found usage of invalid SPDX license expression: "${badLicense}".`
   );
 }
 var parseSpec = (filePath) => {
@@ -8321,6 +8321,7 @@ async function main() {
   for (const pkg of changedPackages) {
     const spec = parseSpec(pkg);
     for (const license of spec.licenses) {
+      if (license === "proprietary") continue;
       try {
         if (process.env.RUNNER_DEBUG) {
           console.log("Parsing license", license, "for", pkg);
@@ -8330,7 +8331,7 @@ async function main() {
         if (process.env.RUNNER_DEBUG) {
           console.error(e);
         }
-        logBadLicense(license);
+        logBadLicense(pkg, license);
         hasErrors = true;
       }
     }
