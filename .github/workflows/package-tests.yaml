@@ -7,11 +7,16 @@ on:
       packages:
         required: false
         type: string
+      skip:
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   package-targets:
     name: Identify packages to test
     runs-on: ubuntu-22.04
+    if: ${{ !inputs.skip }}
     outputs:
       packages: ${{ steps.via-input.outputs.packages || steps.changed-packages.outputs.all_changed_files }}
 
