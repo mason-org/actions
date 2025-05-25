@@ -176,7 +176,7 @@ match install-erlang "packages/erlang-ls/package.yaml" "packages/erlang-debugger
 match install-ghc "packages/haskell-language-server/package.yaml" "packages/haskell-debug-adapter/package.yaml"
 match install-golang "pkg:golang"
 match install-java "packages/java-language-server/package.yaml"
-match install-luarocks "pkg:luarocks"
+match install-luarocks "pkg:luarocks" "packages/fnlfmt/package.yaml"
 match install-nim "packages/nimlsp/package.yaml" "packages/nimlangserver/package.yaml"
 match install-nix "packages/nil/package.yaml"
 match install-opam "pkg:opam"
