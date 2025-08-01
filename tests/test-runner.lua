@@ -10,13 +10,10 @@ if GITHUB_ACTION_PATH then
     vim.opt.rtp:prepend(GITHUB_ACTION_PATH .. "/mason.nvim")
 end
 
-local Pkg = require "mason-core.package"
-local spawn = require "mason-core.spawn"
+local registry = require "mason-registry"
 local _ = require "mason-core.functional"
-local fs = require "mason-core.fs"
-local path = require "mason-core.path"
 local a = require "mason-core.async"
-local registry_installer = require "mason-core.installer.registry"
+local compiler = require "mason-core.installer.compiler"
 local Result = require "mason-core.result"
 local platform = require "mason-core.platform"
 local Purl = require "mason-core.purl"
@@ -45,29 +42,13 @@ local log = setmetatable({}, {
 
 require("mason").setup {
     log_level = vim.log.levels[DEBUG and "DEBUG" or "INFO"],
+    registries = {
+        "file:" .. vim.env.REGISTRY
+    }
 }
+registry.refresh()
 
 local yq = vim.fn.exepath "yq"
-
----@param pkg_path string
-local function parse_package_spec(pkg_path)
-    return Result.try(function(try)
-        local raw_yaml = fs.async.read_file(path.concat { vim.loop.cwd(), pkg_path })
-        local raw_spec = try(spawn[yq] {
-            "-o",
-            "json",
-            on_spawn = function(_, stdio)
-                local stdin = stdio[1]
-                stdin:write(raw_yaml, function()
-                    stdin:shutdown()
-                end)
-            end,
-        })
-        local spec = vim.json.decode(raw_spec.stdout)
-        spec.schema = "registry+v1"
-        return Pkg.new(spec)
-    end)
-end
 
 local is_not_empty = _.complement(_.equals "")
 
@@ -102,7 +83,7 @@ local function get_targets(pkg)
 
     if VERSION then
         for _, target in ipairs(targets) do
-            if registry_installer.parse(pkg.spec, { target = target, version = VERSION }):is_success() then
+            if compiler.parse(pkg.spec, { target = target, version = VERSION }):is_success() then
                 return Result.success { { target = target, version = VERSION } }
             else
                 return Result.failure(("Unsupported platform (version=%s)."):format(VERSION))
@@ -117,7 +98,7 @@ local function get_targets(pkg)
             if
                 Purl.parse(source.id)
                     :and_then(function(purl)
-                        return registry_installer
+                        return compiler
                             .parse(pkg.spec, { target = target, version = purl.version })
                             :on_success(function()
                                 table.insert(resolved_targets, { target = target, version = purl.version })
@@ -143,7 +124,9 @@ local ok, err = pcall(a.run_blocking, function()
         log.info("Testing packages", packages)
 
         for __, pkg_path in ipairs(packages) do
-            local pkg = try(parse_package_spec(pkg_path))
+            -- Turns "packages/rust-analyzer/package.yaml" into "rust-analyzer"
+            local pkg_name = vim.fn.fnamemodify(pkg_path, ":h:t")
+            local pkg = registry.get_package(pkg_name)
             a.scheduler()
             get_targets(pkg)
                 :on_success(function(targets)

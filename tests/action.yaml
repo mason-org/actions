@@ -98,16 +98,17 @@ runs:
       shell: bash
       run: |
         git clone https://github.com/mason-org/mason.nvim "$GITHUB_ACTION_PATH/mason.nvim"
-        git -C "$GITHUB_ACTION_PATH/mason.nvim" checkout v1.x
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
       uses: rhysd/action-setup-vim@v1
       with:
         neovim: true
-        version: v0.7.0
+        # Minimum supported mason.nvim version
+        version: v0.10.0
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
       shell: bash
+      name: mason.nvim healthcheck
       id: healthchecks
       run: |
         nvim --headless \
@@ -117,6 +118,7 @@ runs:
           -c qa
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
+      name: Install yq
       shell: bash
       run: |
         nvim --headless \
@@ -126,11 +128,13 @@ runs:
           -c qa
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
+      name: Run package tests
       run: nvim --headless -c "luafile $GITHUB_ACTION_PATH/test-runner.lua" -c 1cq
       shell: bash
       env:
         PACKAGES: ${{ steps.prepare.outputs.PACKAGES }}
         TARGET: ${{ inputs.target }}
+        REGISTRY: ${{ github.workspace }}
         MASON_VERBOSE_LOGS: "1"
         # This is only needed by r-languageserver due to (somewhat unclear) requirements in remotes::install_github().
         GITHUB_PAT: ${{ inputs.GITHUB_TOKEN }}
