@@ -125,7 +125,7 @@ local ok, err = pcall(a.run_blocking, function()
 
         for __, pkg_path in ipairs(packages) do
             -- Turns "packages/rust-analyzer/package.yaml" into "rust-analyzer"
-            local pkg_name = vim.fn.fnamemodify(pkg_path, ":h:t")
+            local pkg_name = vim.fs.basename(vim.fs.dirname(pkg_path))
             local pkg = registry.get_package(pkg_name)
             a.scheduler()
             get_targets(pkg)
