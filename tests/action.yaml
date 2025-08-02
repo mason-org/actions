@@ -103,7 +103,7 @@ runs:
       uses: rhysd/action-setup-vim@v1
       with:
         neovim: true
-        # Minimum supported mason.nvim version
+        # Minimum version supported by mason.nvim
         version: v0.10.0
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
