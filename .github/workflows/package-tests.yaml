@@ -77,7 +77,7 @@ jobs:
             runs-on: ubuntu-22.04
           - target: darwin_x64
             # macos-13 runs on Intel (x64) hardware. x64 on macOS 14 (macos-14-large) requires a paid plan.
-            runs-on: macos-13
+            runs-on: macos-14
           - target: darwin_arm64
             runs-on: macos-14
           - target: win_x64
