@@ -26,9 +26,9 @@ runs:
     - if: ${{ steps.prepare.outputs.setup_beam == 'true' }}
       uses: erlef/setup-beam@v1
       with:
-        otp-version: '27'
-        elixir-version: '1.17'
-        rebar3-version: '3'
+        otp-version: "27"
+        elixir-version: "1.17"
+        rebar3-version: "3"
 
     - if: ${{ steps.prepare.outputs.setup_nix == 'true' }}
       uses: cachix/install-nix-action@v22
@@ -46,7 +46,7 @@ runs:
     - if: ${{ steps.prepare.outputs.setup_php == 'true' }}
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.3'
+        php-version: "8.3"
 
     # ghcup is already available in the base images of non-macOS platforms. Also see https://github.com/haskell-actions/setup/pull/82
     - if: ${{ steps.prepare.outputs.setup_haskell == 'true' && runner.os == 'macOS' }}
@@ -56,8 +56,8 @@ runs:
     - if: ${{ steps.prepare.outputs.setup_java == 'true' }}
       uses: actions/setup-java@v3
       with:
-        distribution: 'temurin'
-        java-version: '18'
+        distribution: "temurin"
+        java-version: "18"
 
     - if: ${{ steps.prepare.outputs.setup_nim == 'true' }}
       uses: jiro4989/setup-nim-action@v1
@@ -65,12 +65,12 @@ runs:
     - if: ${{ steps.prepare.outputs.setup_golang == 'true' }}
       uses: actions/setup-go@v3
       with:
-        go-version: '>=1.17.0'
+        go-version: ">=1.17.0"
 
     - if: ${{ steps.prepare.outputs.setup_ruby == 'true' }}
       uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.1'
+        ruby-version: ">=3.1"
 
     - if: ${{ runner.os == 'Windows' && steps.prepare.outputs.setup_luarocks == 'true' }}
       name: Add msbuild to PATH
