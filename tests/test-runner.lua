@@ -44,6 +44,9 @@ require("mason").setup {
     log_level = vim.log.levels[DEBUG and "DEBUG" or "INFO"],
     registries = {
         "file:" .. vim.env.REGISTRY
+    },
+    firewall = {
+        enabled = true
     }
 }
 registry.refresh()
