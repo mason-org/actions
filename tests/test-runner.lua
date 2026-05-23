@@ -46,7 +46,10 @@ require("mason").setup {
         "file:" .. vim.env.REGISTRY
     },
     firewall = {
-        enabled = true
+        -- There's an issue with sfw not being able to find commands on the Windows runners. Cannot reproduce locally on
+        -- a Windows machine. Disable firewall on Windows until the issue has been identified to avoid blocking registry
+        -- PRs.
+        enabled = not platform.is.win
     }
 }
 registry.refresh()
