@@ -45,11 +45,9 @@ any
 apt
 aqua
 aquatic
-arab
 arctic
 arid
 armed
-asian
 asleep
 astral
 atomic
@@ -201,7 +199,6 @@ dual
 due
 dull
 dusty
-dutch
 dynamic
 each
 eager
@@ -278,7 +275,6 @@ frail
 frank
 frayed
 free
-french
 fresh
 fried
 friendly
@@ -300,7 +296,6 @@ fuzzy
 gamy
 gaudy
 gentle
-german
 giant
 giddy
 gifted
@@ -329,7 +324,6 @@ grea
 greasy
 great
 greedy
-greek
 green
 grey
 grim
@@ -383,7 +377,6 @@ impish
 impure
 inborn
 inc
-indian
 inland
 innate
 inner
@@ -391,7 +384,6 @@ intact
 intent
 invisible
 irate
-irish
 itchy
 jade
 jaded
@@ -417,7 +409,6 @@ knobby
 knotty
 known
 kooky
-korean
 kosher
 labour
 lame
@@ -588,7 +579,6 @@ plucky
 plump
 plush
 poised
-polish
 polite
 poor
 portly
@@ -644,7 +634,6 @@ ritzy
 rival
 robust
 rocky
-roman
 roomy
 rosy
 rotten
@@ -747,7 +736,6 @@ sound
 soupy
 sour
 south
-soviet
 spare
 sparse
 speedy
@@ -792,7 +780,6 @@ swanky
 sweaty
 sweet
 swift
-swiss
 tacit
 tacky
 tall
@@ -826,7 +813,6 @@ tired
 top
 torn
 torpid
-tory
 total
 tough
 toxic
@@ -890,7 +876,6 @@ wee
 weekly
 weepy
 weird
-welsh
 west
 wet
 white

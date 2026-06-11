@@ -7,7 +7,6 @@ actor
 addax
 adult
 advice
-africa
 age
 agency
 agenda
@@ -49,7 +48,6 @@ arrow
 art
 aruana
 ash
-asia
 aster
 atm
 atom
@@ -120,7 +118,6 @@ belief
 bell
 belt
 bench
-bengal
 beret
 berry
 betta
@@ -173,7 +170,6 @@ branch
 brand
 brandy
 brass
-brazil
 bread
 break
 bream
@@ -201,7 +197,6 @@ bun
 bunny
 burbot
 buri
-burma
 burn
 burro
 burst
@@ -220,7 +215,6 @@ camel
 camera
 camp
 can
-canada
 canary
 candle
 canna
@@ -277,7 +271,6 @@ chief
 chill
 chime
 chin
-china
 chip
 chive
 chord
@@ -342,7 +335,6 @@ comma
 condor
 cone
 conga
-congo
 cony
 cook
 copper
@@ -384,7 +376,6 @@ crush
 crust
 cry
 cub
-cuban
 cup
 curium
 curler
@@ -516,7 +507,6 @@ era
 erbium
 ermine
 error
-europe
 event
 ewe
 exit
@@ -598,10 +588,8 @@ four
 fowl
 fox
 frame
-france
 free
 freeze
-french
 freon
 friday
 fridge
@@ -635,8 +623,6 @@ geese
 gemini
 gender
 george
-german
-ghana
 ghost
 ghoul
 giant
@@ -667,8 +653,6 @@ grass
 grasshopper
 gray
 grease
-greece
-greek
 green
 grey
 grill
@@ -767,7 +751,6 @@ inanga
 inch
 income
 index
-india
 indium
 iniom
 ink
@@ -778,7 +761,6 @@ iris
 iron
 island
 issue
-italy
 jack
 jackal
 jacket
@@ -786,7 +768,6 @@ jade
 jaguar
 jam
 james
-japan
 jar
 jargon
 jason
@@ -841,7 +822,6 @@ koala
 koi
 kokopu
 koodoo
-korean
 kudzu
 lace
 lagena
@@ -1025,7 +1005,6 @@ neck
 need
 needle
 neon
-nepal
 nephew
 nerve
 nest
@@ -1140,7 +1119,6 @@ pepper
 perch
 period
 person
-peru
 pest
 petrol
 phlox
@@ -1239,7 +1217,6 @@ quilt
 quince
 quit
 quiver
-rabbi
 rabbit
 raccoon
 race
@@ -1462,7 +1439,6 @@ soup
 soy
 space
 spade
-spain
 spam
 spark
 sparrow
@@ -1517,7 +1493,6 @@ study
 stuff
 subway
 sucker
-sudan
 suede
 sugar
 suit
@@ -1534,7 +1509,6 @@ swan
 sweets
 swim
 swing
-swiss
 switch
 sword
 sycamore
@@ -1646,7 +1620,6 @@ tulip
 tuna
 tune
 turbot
-turkey
 turn
 turnip
 turret
