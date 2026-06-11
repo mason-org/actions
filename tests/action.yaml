@@ -60,7 +60,7 @@ runs:
         java-version: "18"
 
     - if: ${{ steps.prepare.outputs.setup_nim == 'true' }}
-      uses: jiro4989/setup-nim-action@v1
+      uses: jiro4989/setup-nim-action@v2
 
     - if: ${{ steps.prepare.outputs.setup_golang == 'true' }}
       uses: actions/setup-go@v3
