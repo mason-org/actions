@@ -77,11 +77,10 @@ runs:
       uses: ilammy/msvc-dev-cmd@v1
 
     - if: ${{ steps.prepare.outputs.setup_luarocks == 'true' }}
-      uses: leafo/gh-actions-lua@v10
+      uses: luarocks/gh-actions-lua@v11
 
     - if: ${{ steps.prepare.outputs.setup_luarocks == 'true' }}
-      # uses fork with Windows support added by hishamhm, upstream https://github.com/leafo/gh-actions-luarocks seems unmaintained
-      uses: mason-org/gh-actions-luarocks@v5
+      uses: luarocks/gh-actions-luarocks@v6
 
     - if: ${{ steps.prepare.outputs.setup_python == 'true' }}
       uses: actions/setup-python@v5
