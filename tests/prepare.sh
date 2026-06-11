@@ -111,6 +111,9 @@ function install-opam {
 }
 
 function install-nim {
+    if [[ $RUNNER_OS == Windows ]]; then
+        return "$SKIP"
+    fi
     echo "setup_nim=true" >> "$GITHUB_OUTPUT"
     return 0
 }
