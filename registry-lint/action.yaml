@@ -28,7 +28,7 @@ runs:
     - name: Get packages from input
       if: ${{ inputs.packages == '' }}
       id: changed-packages
-      uses: tj-actions/changed-files@v44
+      uses: tj-actions/changed-files@v47
       with:
         files: |
           packages/**/package.yaml
