@@ -83,7 +83,7 @@ runs:
       uses: luarocks/gh-actions-luarocks@v6
 
     - if: ${{ steps.prepare.outputs.setup_python == 'true' }}
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         # The last specified version will be used as the default one.
         python-version: |
