@@ -5,7 +5,7 @@ description: Action for creating registry releases.
 runs:
   using: composite
   steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         # We only need information for the HEAD commit.
         fetch-depth: 2
