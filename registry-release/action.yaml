@@ -46,7 +46,7 @@ runs:
 
     - name: Release
       if: ${{ steps.tag.outputs.should-release == 'true' }}
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: ${{ steps.tag.outputs.tag }}
         fail_on_unmatched_files: true
