@@ -92,6 +92,10 @@ runs:
           3.10
           3.11
           3.12
+    - if: ${{ steps.prepare.outputs.setup_julia == 'true' }}
+      uses: julia-actions/setup-julia@v2
+      with:
+        version: "1"
 
     - if: ${{ steps.prepare.outputs.PACKAGES != '' }}
       shell: bash
