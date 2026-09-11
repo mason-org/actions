@@ -171,6 +171,10 @@ function install-python {
     echo "setup_python=true" >> "$GITHUB_OUTPUT"
 }
 
+function install-julia {
+    echo "setup_julia=true" >> "$GITHUB_OUTPUT"
+}
+
 if [[ $RUNNER_OS == Linux ]]; then
     sudo apt update
 fi
@@ -188,6 +192,7 @@ match install-ruby "pkg:gem"
 match install-zstd "packages/zls/package.yaml"
 match install-php "pkg:composer"
 match install-python "pkg:pypi"
+match install-julia "packages/jetls/package.yaml"
 
 echo "SKIPPED_PACKAGES=${SKIPPED_PACKAGES[@]+"${SKIPPED_PACKAGES[@]}"}" >> "$GITHUB_ENV"
 
